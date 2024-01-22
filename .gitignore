@@ -1,0 +1,23 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/monitor-front/node_modules
+/monitor-front/.pnp
+/monitor-front/.pnp.js
+
+# testing
+/monitor-front/coverage
+
+# production
+/monitor-front/build
+
+# misc
+/monitor-front/.DS_Store
+/monitor-front/.env.local
+/monitor-front/.env.development.local
+/monitor-front/.env.test.local
+/monitor-front/.env.production.local
+
+/monitor-front/npm-debug.log*
+/monitor-front/yarn-debug.log*
+/monitor-front/yarn-error.log*
