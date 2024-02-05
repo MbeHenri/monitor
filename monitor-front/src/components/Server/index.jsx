@@ -2,13 +2,13 @@ import { Button, Link, Tooltip } from "@chakra-ui/react";
 import { useCurrentServer } from "../../hooks/Server";
 import { StateBadge } from "../../utils/Atoms";
 
-function ServerComponent({ data }) {
+function ServerComponent({ data, closeNav }) {
   const { currentServer, updateCurrentServer } = useCurrentServer();
   const isCurrentServer = currentServer && currentServer.id === data.id;
 
   return (
     <>
-      <Tooltip label={data.name} aria-label="A tooltip">
+      <Tooltip label={data.friendlyname} aria-label="A tooltip">
         <Button
           justifyContent="left"
           iconSpacing={4}
@@ -23,6 +23,7 @@ function ServerComponent({ data }) {
           as={Link}
           onClick={() => {
             updateCurrentServer(data);
+            closeNav();
           }}
         >
           {data.hostname}

@@ -4,6 +4,13 @@ import { useAuth } from "../Auth";
 import { ServerContext } from "../../providers/Server";
 
 /**
+ * hook permettant d'accéder au provider Server
+ */
+export function useServer() {
+  return useContext(ServerContext);
+}
+
+/**
  * hook permettant de retourner la liste des serveurs en fournissant
  * @returns
  */

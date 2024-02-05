@@ -23,16 +23,18 @@ import {
   Link,
   Show,
 } from "@chakra-ui/react";
-import { EditIcon, LockIcon, HamburgerIcon, AddIcon } from "@chakra-ui/icons";
+import { EditIcon, LockIcon, HamburgerIcon } from "@chakra-ui/icons";
 
 import logo_light from "../../assets/logo_light.svg";
 import logo_dark from "../../assets/logo_dark.svg";
 
 import ThemeButton from "../ThemeButton";
-import { useAuth } from "../../hooks/Auth";
 import PrivateComponent from "../PrivateComponent";
-import { useCurrentServer, useServers } from "../../hooks/Server";
+import { AddIconServer } from "../AddIconServer";
 import Server from "../Server";
+
+import { useAuth } from "../../hooks/Auth";
+import { useCurrentServer, useServers } from "../../hooks/Server";
 
 function Header() {
   const { colorMode } = useColorMode();
@@ -106,7 +108,14 @@ function Header() {
 
               {/* Liste des serveurs */}
               <DrawerBody pt={4}>
-                <Button variant="link" as={Link} onClick={clearCurrentServer}>
+                <Button
+                  variant="link"
+                  as={Link}
+                  onClick={() => {
+                    clearCurrentServer();
+                    onClose();
+                  }}
+                >
                   <Text color="primary" fontSize="xl">
                     Dashboard
                   </Text>
@@ -119,11 +128,7 @@ function Header() {
                           <Text color="primary" fontSize="xl">
                             Mes Serveurs
                           </Text>
-                          <IconButton
-                            size="sm"
-                            aria-label="Ajouter un serveur"
-                            icon={<AddIcon />}
-                          />
+                          <AddIconServer />
                         </>
                       ) : (
                         <></>
@@ -146,7 +151,11 @@ function Header() {
                     {servers.length > 0 ? (
                       <Stack pt="1rem">
                         {servers.map((server, index) => (
-                          <Server key={`server-${index}`} data={server} />
+                          <Server
+                            key={`server-${index}`}
+                            data={server}
+                            closeNav={onClose}
+                          />
                         ))}
                       </Stack>
                     ) : (
@@ -183,5 +192,4 @@ function Header() {
     </>
   );
 }
-
 export default Header;

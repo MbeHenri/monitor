@@ -12,6 +12,8 @@ import {
   HStack,
   Box,
   Show,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -37,13 +39,14 @@ function Login() {
   const [errorInputUsername, seterrorInputUsername] = useState(false);
   const [password, setPassword] = useState("");
   const [errorInputPassword, seterrorInputPassword] = useState(false);
+
   const handleChangeUserName = (event) => {
     setUsername(event.target.value);
-    seterrorInputUsername(false);
+    errorInputUsername && seterrorInputUsername(false);
   };
   const handleChangePassword = (event) => {
     setPassword(event.target.value);
-    seterrorInputPassword(false);
+    errorInputPassword && seterrorInputPassword(false);
   };
 
   // function to handle a submittion
@@ -69,7 +72,7 @@ function Login() {
   return (
     <>
       {user ? (
-        <Navigate to="/" replace/>
+        <Navigate to="/" replace />
       ) : (
         <HStack h="100vh">
           <Container>
@@ -84,33 +87,31 @@ function Login() {
                 <Heading>Sign In</Heading>
                 <Text>Connectez vous pour monitorer vos serveurs</Text>
               </Stack>
+
               {/* username entry group */}
-              <Stack spacing={2}>
-                <Text> Username </Text>
+              <FormControl mt={4} isRequired>
+                <FormLabel>Username</FormLabel>
                 <Input
-                  pr="4.5rem"
-                  type="text"
-                  placeholder="Enter Username"
-                  value={username}
-                  onChange={handleChangeUserName}
                   isInvalid={errorInputUsername}
+                  placeholder="Enter Username"
+                  onChange={handleChangeUserName}
                   onKeyDown={handleSubmit}
+                  value={username}
                 />
                 {/* errorInputUsername && <Text size="xs" fontWeight="hairline" color="error">username empty</Text> */}
-              </Stack>
+              </FormControl>
 
               {/* password entry group */}
-              <Stack>
-                <Text> Password </Text>
+              <FormControl mt={4} isRequired>
+                <FormLabel>Password</FormLabel>
                 <InputGroup size="md">
                   <Input
-                    pr="4.5rem"
+                    isInvalid={errorInputPassword}
                     type={show ? "text" : "password"}
                     placeholder="Enter password"
-                    value={password}
                     onChange={handleChangePassword}
-                    isInvalid={errorInputPassword}
                     onKeyDown={handleSubmit}
+                    value={password}
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -118,15 +119,14 @@ function Login() {
                     </Button>
                   </InputRightElement>
                 </InputGroup>
-
                 {/* errorInputPassword && <Text color="error">Password empty</Text> */}
-              </Stack>
+              </FormControl>
 
               {/* Send Button */}
               <Button
                 isLoading={isSubmitting}
                 loadingText={"Submitting"}
-                bg="primary"
+                background="primary"
                 variant="solid"
                 colorScheme="primary"
                 _hover={{

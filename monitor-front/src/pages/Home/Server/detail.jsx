@@ -35,7 +35,7 @@ function ServerHome() {
               size="1.5rem"
             />
           </HStack>
-          <Text>{currentServer.name}</Text>
+          <Text>{currentServer.friendlyname}</Text>
         </Box>
         <HStack>
           <Button>

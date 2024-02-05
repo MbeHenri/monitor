@@ -17,11 +17,11 @@ export async function list_servers(user) {
       const { results } = content;
       return results;
     } else {
-      return false;
+      return { error: response.status === 401 ? "auth" : "any" };
     }
   } catch (error) {
     console.log(error);
-    return false;
+    return { error: "any" };
   }
 }
 
@@ -30,10 +30,10 @@ export async function add_server(user, data) {
   const { token } = user;
   myHeaders.append("Authorization", `Bearer ${token}`);
 
-  const { hostname, name } = data;
+  const { hostname, friendlyname } = data;
   var formdata = new FormData();
   formdata.append("hostname", hostname);
-  formdata.append("friendlyname", name);
+  formdata.append("friendlyname", friendlyname);
 
   var requestOptions = {
     method: "POST",
@@ -46,13 +46,13 @@ export async function add_server(user, data) {
     const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
     var response = await fetch(`${serverAPIUrl}api/v1/server/`, requestOptions);
     if (response.ok) {
-      return true;
+      return await response.json();
     } else {
-      return false;
+      return { error: response.status === 401 ? "auth" : "any" };
     }
   } catch (error) {
     console.log(error);
-    return false;
+    return { error: "any" };
   }
 }
 
