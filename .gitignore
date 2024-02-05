@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# !!!!! front 
 
 # dependencies
 /monitor-front/node_modules
@@ -21,3 +21,10 @@
 /monitor-front/npm-debug.log*
 /monitor-front/yarn-debug.log*
 /monitor-front/yarn-error.log*
+
+# !!!!!! back - api
+/monitor.env
+/monitor_api/db.sqlite3
+
+/monitor_api/*/__pycache__
+/monitor_api/*/*/__pycache__

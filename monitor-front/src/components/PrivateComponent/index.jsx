@@ -4,8 +4,8 @@ import { useAuth } from "../../hooks/Auth";
 const PrivateComponent = ({ children, is_component = false }) => {
   const { user } = useAuth();
   if (!user) {
-    // l'utilisateur n'est pas authentifié
-    return is_component ? null : <Navigate to="/login" />;
+    // if user isn't authenticated, redirect to login page
+    return is_component ? null : <Navigate to="/login" replace />;
   }
   return children;
 };

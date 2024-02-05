@@ -8,50 +8,27 @@ import { ServerContext } from "../../providers/Server";
  * @returns
  */
 export function useServers() {
-  const [servers, setServers] = useState([]);
+  const { servers, loadServers } = useContext(ServerContext);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { user } = useAuth();
 
   useEffect(() => {
-    setIsLoading(true);
-    setError(false);
-    const loadapi = async () => {
-      if (user) {
-        // l'utilisateur est authentifié
-        setServers([
-          {
-            id: "100",
-            name: "serveur 1",
-            hostname: "example.com",
-            isAccessible: true,
-            inSession: false,
-          },
-          {
-            id: "200",
-            name: "serveur 5",
-            hostname: "bunec.com",
-            isAccessible: true,
-            inSession: true,
-          },
+    loadServers()
+      .then((res) => {
+        const { error } = res;
+        if (error) {
+          setError({ type: error });
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, [loadServers]);
 
-          {
-            id: "300",
-            name: "serveur 1",
-            hostname: "google.com",
-            isAccessible: false,
-            inSession: false,
-          },
-        ]);
-      } else {
-        // l'utilisateur ne l'est pas
-        setError({ type: "auth" });
-      }
-      setIsLoading(false);
-    };
-    loadapi();
-  }, [user]);
   return { isLoading, servers, error };
+}
+
+export function useServersContext() {
+  const { servers } = useContext(ServerContext);
+  return { servers };
 }
 
 /**

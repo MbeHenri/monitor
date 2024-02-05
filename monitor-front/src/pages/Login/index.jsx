@@ -21,14 +21,18 @@ import bgimagedark from "../../assets/laptop-computer-dark.jpg";
 import bgimagelight from "../../assets/laptop-computer-light.jpg";
 import ThemeButton from "../../components/ThemeButton";
 import { useAuth } from "../../hooks/Auth";
+import { Navigate } from "react-router-dom";
 
 function Login() {
+  // state for handle password field
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
 
+  // state for submitting authenticate form
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { user, login } = useAuth();
 
+  // state for the fields of the form
   const [username, setUsername] = useState("");
   const [errorInputUsername, seterrorInputUsername] = useState(false);
   const [password, setPassword] = useState("");
@@ -42,12 +46,13 @@ function Login() {
     seterrorInputPassword(false);
   };
 
+  // function to handle a submittion
   const handleSubmit = (event) => {
     if (event.key && event.key !== "Enter") {
       return;
     }
-    console.log(username);
-    console.log(password);
+    /* console.log(username);
+    console.log(password); */
     if (username === "" || password === "") {
       username === "" && seterrorInputUsername(true);
       password === "" && seterrorInputPassword(password === "");
@@ -62,88 +67,94 @@ function Login() {
   const { colorMode } = useColorMode();
 
   return (
-    <HStack h="100vh">
-      <Container>
-        <Stack spacing={9} mt="0" p="2rem">
-          <Stack>
-            <Image
-              src={colorMode === "dark" ? logo_dark : logo_light}
-              h={70}
-              alt="monitor"
-              mb="1rem"
+    <>
+      {user ? (
+        <Navigate to="/" replace/>
+      ) : (
+        <HStack h="100vh">
+          <Container>
+            <Stack spacing={9} mt="0" p="2rem">
+              <Stack>
+                <Image
+                  src={colorMode === "dark" ? logo_dark : logo_light}
+                  h={70}
+                  alt="monitor"
+                  mb="1rem"
+                />
+                <Heading>Sign In</Heading>
+                <Text>Connectez vous pour monitorer vos serveurs</Text>
+              </Stack>
+              {/* username entry group */}
+              <Stack spacing={2}>
+                <Text> Username </Text>
+                <Input
+                  pr="4.5rem"
+                  type="text"
+                  placeholder="Enter Username"
+                  value={username}
+                  onChange={handleChangeUserName}
+                  isInvalid={errorInputUsername}
+                  onKeyDown={handleSubmit}
+                />
+                {/* errorInputUsername && <Text size="xs" fontWeight="hairline" color="error">username empty</Text> */}
+              </Stack>
+
+              {/* password entry group */}
+              <Stack>
+                <Text> Password </Text>
+                <InputGroup size="md">
+                  <Input
+                    pr="4.5rem"
+                    type={show ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={handleChangePassword}
+                    isInvalid={errorInputPassword}
+                    onKeyDown={handleSubmit}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={handleClick}>
+                      {show ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+
+                {/* errorInputPassword && <Text color="error">Password empty</Text> */}
+              </Stack>
+
+              {/* Send Button */}
+              <Button
+                isLoading={isSubmitting}
+                loadingText={"Submitting"}
+                bg="primary"
+                variant="solid"
+                colorScheme="primary"
+                _hover={{
+                  background: "secondary",
+                  colorScheme: "secondary",
+                }}
+                onClick={handleSubmit}
+              >
+                Log in
+              </Button>
+            </Stack>
+          </Container>
+          <Show above="md">
+            <Box
+              bgImage={colorMode === "dark" ? bgimagedark : bgimagelight}
+              bgSize={"cover"}
+              bgPosition="center"
+              w="55%"
+              h="100vh"
+              borderBottomLeftRadius="10rem"
             />
-            <Heading>Sign In</Heading>
-            <Text>Connectez vous pour monitorer vos serveurs</Text>
-          </Stack>
-          {/* username entry group */}
-          <Stack spacing={2}>
-            <Text> Username </Text>
-            <Input
-              pr="4.5rem"
-              type="text"
-              placeholder="Enter Username"
-              value={username}
-              onChange={handleChangeUserName}
-              isInvalid={errorInputUsername}
-              onKeyDown={handleSubmit}
-            />
-            {/* errorInputUsername && <Text size="xs" fontWeight="hairline" color="error">username empty</Text> */}
-          </Stack>
-
-          {/* password entry group */}
-          <Stack>
-            <Text> Password </Text>
-            <InputGroup size="md">
-              <Input
-                pr="4.5rem"
-                type={show ? "text" : "password"}
-                placeholder="Enter password"
-                value={password}
-                onChange={handleChangePassword}
-                isInvalid={errorInputPassword}
-                onKeyDown={handleSubmit}
-              />
-              <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handleClick}>
-                  {show ? <ViewOffIcon /> : <ViewIcon />}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-
-            {/* errorInputPassword && <Text color="error">Password empty</Text> */}
-          </Stack>
-
-          {/* Send Button */}
-          <Button
-            isLoading={isSubmitting}
-            loadingText={"Submitting"}
-            bg="primary"
-            variant="solid"
-            colorScheme="primary"
-            _hover={{
-              background: "secondary",
-              colorScheme: "secondary",
-            }}
-            onClick={handleSubmit}
-          >
-            Log in
-          </Button>
-        </Stack>
-      </Container>
-      <Show above="md">
-        <Box
-          bgImage={colorMode === "dark" ? bgimagedark : bgimagelight}
-          bgSize={"cover"}
-          bgPosition="center"
-          w="55%"
-          h="100vh"
-          borderBottomLeftRadius="10rem"
-        />
-      </Show>
-      <Box position="absolute" right="0" top="0" margin="2rem">
-        <ThemeButton />
-      </Box>
-    </HStack>
+          </Show>
+          <Box position="absolute" right="0" top="0" margin="2rem">
+            <ThemeButton />
+          </Box>
+        </HStack>
+      )}
+    </>
   );
 }
 
