@@ -13,17 +13,24 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useServers } from "../../hooks/Server";
 import empty_server_img from "../../assets/empty_server.png";
 import { AddIcon } from "@chakra-ui/icons";
 import { format_ratio_2_per } from "../../utils/functions";
+import { AddServerForm } from "../../components/AddServerForm";
+import { useRef } from "react";
 
 function DefaultHome() {
   const { isLoading, servers } = useServers();
 
   const perAccesible = percentageAccessible(servers);
   const perSession = percentageInSession(servers);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const initialRef = useRef(null);
+  const finalRef = useRef(null);
 
   return (
     <Container maxW="container.lg">
@@ -44,9 +51,15 @@ function DefaultHome() {
                 h="50vh"
               />
               <Text>Aucun serveur pour le moment</Text>
-              <Button size="lg" leftIcon={<AddIcon />}>
+              <Button onClick={onOpen} size="lg" leftIcon={<AddIcon />}>
                 Ajouter
               </Button>
+              <AddServerForm
+                finalRef={finalRef}
+                initialRef={initialRef}
+                isOpen={isOpen}
+                onClose={onClose}
+              />
             </Stack>
           </>
         )}

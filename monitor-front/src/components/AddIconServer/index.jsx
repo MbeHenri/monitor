@@ -16,7 +16,6 @@ export function AddIconServer() {
     <>
       <IconButton
         size="sm"
-        aria-label="Ajouter un serveur"
         onClick={onOpen}
         icon={<AddIcon />}
       />

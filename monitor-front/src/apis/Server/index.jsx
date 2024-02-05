@@ -76,10 +76,10 @@ export async function delete_server(user, idServer) {
     if (response.ok) {
       return true;
     } else {
-      return false;
+      return { error: response.status === 401 ? "auth" : "any" };
     }
   } catch (error) {
     console.log(error);
-    return false;
+    return { error: "any" };
   }
 }

@@ -12,7 +12,7 @@ import {
   Tabs,
   Text,
 } from "@chakra-ui/react";
-import { useCurrentServer } from "../../../hooks/Server";
+import { useCurrentServer, useServer } from "../../../hooks/Server";
 import { AccessibleBadge } from "../../../components/Server";
 import UptimeComponent from "../../../components/Server/uptime";
 import MemoryComponent from "../../../components/Server/memory";
@@ -21,6 +21,11 @@ import Services from "../../../components/Server/services";
 
 function ServerHome() {
   const { currentServer } = useCurrentServer();
+  const { deleteServer } = useServer();
+
+  const handleDelete = () => {
+    deleteServer(currentServer.id);
+  };
 
   return (
     <Container maxW="container.lg">
@@ -41,7 +46,9 @@ function ServerHome() {
           <Button>
             {currentServer.inSession ? "Deconnecter" : "Connecter"}
           </Button>
-          <Button colorScheme="red"> Supprimer </Button>
+          <Button colorScheme="red" onClick={handleDelete}>
+            Supprimer
+          </Button>
         </HStack>
 
         <Tabs mt="2rem">

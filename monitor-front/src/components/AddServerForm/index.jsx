@@ -22,10 +22,14 @@ export function AddServerForm({ initialRef, finalRef, isOpen, onClose }) {
   const [errorHostname, setErrorHostname] = useState(false);
   const [friendlyname, setFriendlyname] = useState("");
 
-  const close = () => {
+  const clear = () => {
     errorHostname && setErrorHostname(false);
     setHostname("");
     setFriendlyname("");
+  };
+
+  const close = () => {
+    clear();
     onClose();
   };
 
@@ -53,7 +57,7 @@ export function AddServerForm({ initialRef, finalRef, isOpen, onClose }) {
       addServer({ hostname: hostname, friendlyname: friendlyname }).finally(
         () => {
           setIsSubmitting(false);
-          onClose();
+          close();
         }
       );
     }

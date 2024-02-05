@@ -33,11 +33,6 @@ export function useServers() {
   return { isLoading, servers, error };
 }
 
-export function useServersContext() {
-  const { servers } = useContext(ServerContext);
-  return { servers };
-}
-
 /**
  * hook permettant de recuperer l'uptime du serveur ayant l'identifiant "idServer"
  * @param {*} idServer
@@ -141,8 +136,10 @@ export function useInfosCPUServer(idServer) {
  * @returns
  */
 export function useCurrentServer() {
-  const { currentServer, setCurrentServer } = useContext(ServerContext);
-  const updateCurrentServer = (data) => setCurrentServer(data);
-  const clearCurrentServer = () => setCurrentServer(null);
+  const {
+    currentServer,
+    clearCurrentServer,
+    updateCurrentServer,
+  } = useContext(ServerContext);
   return { currentServer, updateCurrentServer, clearCurrentServer };
 }
