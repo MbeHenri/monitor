@@ -1,5 +1,7 @@
 # !!!!! front 
 
+*.env
+
 # dependencies
 /monitor-front/node_modules
 /monitor-front/.pnp

@@ -12,7 +12,11 @@ import {
   Tabs,
   Text,
 } from "@chakra-ui/react";
-import { useCurrentServer, useServer } from "../../../hooks/Server";
+import {
+  useCurrentServer,
+  useIsAccessibleServer,
+  useServer,
+} from "../../../hooks/Server";
 import { AccessibleBadge } from "../../../components/Server";
 import UptimeComponent from "../../../components/Server/uptime";
 import MemoryComponent from "../../../components/Server/memory";
@@ -22,6 +26,7 @@ import Services from "../../../components/Server/services";
 function ServerHome() {
   const { currentServer } = useCurrentServer();
   const { deleteServer } = useServer();
+  const { isAccessible } = useIsAccessibleServer(currentServer.id);
 
   const handleDelete = () => {
     deleteServer(currentServer.id);
@@ -35,10 +40,7 @@ function ServerHome() {
         <Box mt="1rem">
           <HStack>
             <Heading color="primary">{currentServer.hostname}</Heading>
-            <AccessibleBadge
-              isAccessible={currentServer.isAccessible}
-              size="1.5rem"
-            />
+            <AccessibleBadge isAccessible={isAccessible} size="1.5rem" />
           </HStack>
           <Text>{currentServer.friendlyname}</Text>
         </Box>

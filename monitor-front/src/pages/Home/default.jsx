@@ -15,7 +15,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useServers } from "../../hooks/Server";
+import { useServer } from "../../hooks/Server";
 import empty_server_img from "../../assets/empty_server.png";
 import { AddIcon } from "@chakra-ui/icons";
 import { format_ratio_2_per } from "../../utils/functions";
@@ -23,23 +23,35 @@ import { AddServerForm } from "../../components/AddServerForm";
 import { useRef } from "react";
 
 function DefaultHome() {
-  const { isLoading, servers } = useServers();
+  const { isLoading, servers, isAccesibleServers } = useServer();
 
-  const perAccesible = percentageAccessible(servers);
+  const perAccesible = percentageAccessible(servers, isAccesibleServers);
   const perSession = percentageInSession(servers);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
+  
+  console.log(isAccesibleServers);
 
   return (
     <Container maxW="container.lg">
       <Stack gap={4} pt={10}>
         <Heading color="primary">Dashboard</Heading>
         {isLoading ? (
-          StatsBody(isLoading, servers, perAccesible, perSession)
+          <StatsBody
+            isLoading={isLoading}
+            servers={servers}
+            perAccesible={perAccesible}
+            perSession={perSession}
+          />
         ) : servers.length > 0 ? (
-          StatsBody(isLoading, servers, perAccesible, perSession)
+          <StatsBody
+            isLoading={isLoading}
+            servers={servers}
+            perAccesible={perAccesible}
+            perSession={perSession}
+          />
         ) : (
           <>
             <Stack align="center">
@@ -68,7 +80,7 @@ function DefaultHome() {
   );
 }
 
-function StatsBody(isLoading, servers, perAccesible, perSession) {
+function StatsBody({ isLoading, servers, perAccesible, perSession }) {
   return (
     <>
       {/* Statistiques sur les serveurs enrégistrées */}
@@ -101,7 +113,7 @@ function StatsBody(isLoading, servers, perAccesible, perSession) {
         <CardBody>
           <Stat>
             <StatLabel color="secondary">Taux de serveurs en session</StatLabel>
-            <StatNumber>{isLoading ? null : `${perAccesible} %`}</StatNumber>
+            <StatNumber>{isLoading ? null : `${perSession} %`}</StatNumber>
           </Stat>
           {isLoading ? (
             <Skeleton height="20px" />
@@ -114,9 +126,10 @@ function StatsBody(isLoading, servers, perAccesible, perSession) {
   );
 }
 
-function percentageAccessible(servers) {
+function percentageAccessible(servers, isAccesibleServers) {
   const per =
-    servers.filter((server) => server.isAccessible).length / servers.length;
+    servers.filter((server) => isAccesibleServers[server.id]).length /
+    servers.length;
   return format_ratio_2_per(per);
 }
 

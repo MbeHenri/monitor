@@ -10,45 +10,9 @@ export function useServer() {
   return useContext(ServerContext);
 }
 
-/**
- * hook permettant de retourner la liste des serveurs en fournissant
- * @returns
- */
-export function useServers() {
-  const { servers, loadServers } = useContext(ServerContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    loadServers()
-      .then((res) => {
-        const { error } = res;
-        if (error) {
-          setError({ type: error });
-        }
-      })
-      .finally(() => setIsLoading(false));
-  }, [loadServers]);
-
-  return { isLoading, servers, error };
-}
-
 export function useIsAccessibleServer(idServer) {
-  const { isAccessibleServer } = useServer();
-  const [isAccessible, setAccessible] = useState(false);
-
-  useEffect(() => {
-    isAccessibleServer(idServer).then((res) => {
-      const { error } = res;
-      if (!error) {
-        setAccessible(res);
-      } else {
-        setAccessible(false);
-      }
-    });
-  }, [idServer, isAccessibleServer]);
-
-  return { isAccessible };
+  const { isAccesibleServers } = useServer();
+  return { isAccessible: isAccesibleServers[idServer] };
 }
 
 /**
