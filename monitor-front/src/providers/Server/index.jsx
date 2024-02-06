@@ -1,15 +1,22 @@
 import { useState, createContext, useCallback } from "react";
-import { add_server, delete_server, list_servers } from "../../apis/Server";
+import {
+  accessible_server,
+  add_server,
+  delete_server,
+  list_servers,
+} from "../../apis/Server";
 import { useAuth } from "../../hooks/Auth";
 
 export const ServerContext = createContext();
 const ServerProvider = ({ children }) => {
-  const [servers, setServers] = useState([]);
-
   const { user } = useAuth();
+
+  const [servers, setServers] = useState([]);
+  // const [isAccesibleServers, setIsAccesibleServers] = useState({});
+
   const loadServers = useCallback(async () => {
     if (user) {
-      return list_servers(user).then((list) => {
+      return await list_servers(user).then((list) => {
         const { error } = list;
         if (!error) {
           setServers(
@@ -35,7 +42,7 @@ const ServerProvider = ({ children }) => {
   const addServer = useCallback(
     async (formdata) => {
       if (user) {
-        return add_server(user, formdata).then((server) => {
+        return await add_server(user, formdata).then((server) => {
           const { error } = server;
           if (!error) {
             const { id, hostname, friendlyname } = server;
@@ -62,7 +69,7 @@ const ServerProvider = ({ children }) => {
   const deleteServer = useCallback(
     async (idServer) => {
       if (user) {
-        return delete_server(user, idServer).then((res) => {
+        return await delete_server(user, idServer).then((res) => {
           const { error } = res;
           if (!error) {
             setServers(servers.filter((server) => server.id !== idServer));
@@ -79,6 +86,17 @@ const ServerProvider = ({ children }) => {
     [servers, user]
   );
 
+  const isAccessibleServer = useCallback(
+    async (idServer) => {
+      if (user) {
+        return await accessible_server(user, idServer);
+      } else {
+        return { error: "auth" };
+      }
+    },
+    [user]
+  );
+
   const [currentServer, setCurrentServer] = useState(null);
   const [currentService, setCurrentService] = useState(null);
 
@@ -89,9 +107,11 @@ const ServerProvider = ({ children }) => {
     <ServerContext.Provider
       value={{
         servers,
+        // isAccesibleServers,
         loadServers,
         addServer,
         deleteServer,
+        isAccessibleServer,
 
         currentServer,
         updateCurrentServer,

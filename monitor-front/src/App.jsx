@@ -6,6 +6,7 @@ import Error from "./components/Error";
 import Header from "./components/Header";
 import { theme } from "./utils/style/theme";
 import { AuthProvider } from "./providers/Auth";
+import { SettingProvider } from "./providers/Setting";
 import ProtectedRoute from "./components/PrivateComponent";
 import ServerProvider from "./providers/Server";
 
@@ -13,31 +14,33 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ServerProvider>
-          <ChakraProvider theme={theme}>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Header />
-                    <Home />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="*"
-                element={
-                  <>
-                    <Header />
-                    <Error />
-                  </>
-                }
-              />
-            </Routes>
-          </ChakraProvider>
-        </ServerProvider>
+        <SettingProvider>
+          <ServerProvider>
+            <ChakraProvider theme={theme}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Header />
+                      <Home />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="*"
+                  element={
+                    <>
+                      <Header />
+                      <Error />
+                    </>
+                  }
+                />
+              </Routes>
+            </ChakraProvider>
+          </ServerProvider>
+        </SettingProvider>
       </AuthProvider>
     </Router>
   );

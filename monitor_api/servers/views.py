@@ -1,14 +1,17 @@
-# from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 
 # from rest_framework.views import APIView
 
 from servers.serializers import ServerSerializer
 from servers.models import Server
 from servers.forms import ServerValidateForm
+
+from servers.utils import accessible_server
 
 
 class ServerViewset(ModelViewSet):
@@ -56,3 +59,18 @@ class ServerViewset(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class AccessibleServerAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, *args, **kwargs):
+        server = get_object_or_404(Server, pk=self.kwargs["id"])
+        if server.user == self.request.user:
+            return Response(
+                {"value": accessible_server(server.hostname)},
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {"detail": "server not found"}, status=status.HTTP_401_UNAUTHORIZED
+        )

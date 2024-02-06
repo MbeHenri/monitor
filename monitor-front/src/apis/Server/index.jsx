@@ -83,3 +83,39 @@ export async function delete_server(user, idServer) {
     return { error: "any" };
   }
 }
+
+export async function accessible_server(user, idServer) {
+  var myHeaders = new Headers();
+  const { token } = user;
+  myHeaders.append("Authorization", `Bearer ${token}`);
+
+  var requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  try {
+    const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
+    var response = await fetch(
+      `${serverAPIUrl}api/v1/accessible/${idServer}/`,
+      requestOptions
+    );
+    if (response.ok) {
+      const { value } = await response.json();
+      return value;
+    } else {
+      return {
+        error:
+          response.status === 401
+            ? "auth"
+            : response.status === 404
+            ? "not_found"
+            : "any",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return { error: "any" };
+  }
+}

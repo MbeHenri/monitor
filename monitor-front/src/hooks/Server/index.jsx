@@ -33,6 +33,24 @@ export function useServers() {
   return { isLoading, servers, error };
 }
 
+export function useIsAccessibleServer(idServer) {
+  const { isAccessibleServer } = useServer();
+  const [isAccessible, setAccessible] = useState(false);
+
+  useEffect(() => {
+    isAccessibleServer(idServer).then((res) => {
+      const { error } = res;
+      if (!error) {
+        setAccessible(res);
+      } else {
+        setAccessible(false);
+      }
+    });
+  }, [idServer, isAccessibleServer]);
+
+  return { isAccessible };
+}
+
 /**
  * hook permettant de recuperer l'uptime du serveur ayant l'identifiant "idServer"
  * @param {*} idServer
@@ -136,10 +154,7 @@ export function useInfosCPUServer(idServer) {
  * @returns
  */
 export function useCurrentServer() {
-  const {
-    currentServer,
-    clearCurrentServer,
-    updateCurrentServer,
-  } = useContext(ServerContext);
+  const { currentServer, clearCurrentServer, updateCurrentServer } =
+    useContext(ServerContext);
   return { currentServer, updateCurrentServer, clearCurrentServer };
 }

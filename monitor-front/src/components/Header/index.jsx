@@ -17,7 +17,6 @@ import {
   Text,
   Stack,
   Divider,
-  Skeleton,
   IconButton,
   Hide,
   Link,
@@ -34,14 +33,14 @@ import { AddIconServer } from "../AddIconServer";
 import Server from "../Server";
 
 import { useAuth } from "../../hooks/Auth";
-import { useCurrentServer, useServers } from "../../hooks/Server";
+import { useCurrentServer, useServer } from "../../hooks/Server";
 
 function Header() {
   const { colorMode } = useColorMode();
   const { logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { isLoading, servers, error } = useServers();
+  const { servers } = useServer();
   const { clearCurrentServer } = useCurrentServer();
 
   return (
@@ -121,49 +120,31 @@ function Header() {
                   </Text>
                 </Button>
                 <HStack pt={4}>
-                  {!isLoading ? (
+                  {servers.length > 0 ? (
                     <>
-                      {servers.length > 0 ? (
-                        <>
-                          <Text color="primary" fontSize="xl">
-                            Mes Serveurs
-                          </Text>
-                          <AddIconServer />
-                        </>
-                      ) : (
-                        <></>
-                      )}
+                      <Text color="primary" fontSize="xl">
+                        Mes Serveurs
+                      </Text>
+                      <AddIconServer />
                     </>
                   ) : (
                     <></>
                   )}
                 </HStack>
-                {isLoading ? (
-                  <Stack>
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
+                {servers.length > 0 ? (
+                  <Stack pt="1rem">
+                    {servers.map((server, index) => (
+                      <Server
+                        key={`server-${index}`}
+                        data={server}
+                        closeNav={onClose}
+                      />
+                    ))}
                   </Stack>
-                ) : error ? (
-                  <Text>Erreur</Text>
                 ) : (
-                  <>
-                    {servers.length > 0 ? (
-                      <Stack pt="1rem">
-                        {servers.map((server, index) => (
-                          <Server
-                            key={`server-${index}`}
-                            data={server}
-                            closeNav={onClose}
-                          />
-                        ))}
-                      </Stack>
-                    ) : (
-                      <Stack textAlign="center" mt="27vh">
-                        <Text>Aucun serveur n'est visible</Text>
-                      </Stack>
-                    )}
-                  </>
+                  <Stack textAlign="center" mt="27vh">
+                    <Text>Aucun serveur n'est visible</Text>
+                  </Stack>
                 )}
               </DrawerBody>
 
