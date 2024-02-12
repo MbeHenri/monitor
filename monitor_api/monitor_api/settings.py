@@ -32,17 +32,20 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # our installed app
+    "daphne",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "channels",
+    # django apps
+    "servers.apps.ServersConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # our installed app
-    "corsheaders",
-    "rest_framework",
-    "rest_framework_simplejwt",
-    "servers.apps.ServersConfig",
 ]
 
 
@@ -80,6 +83,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "monitor_api.wsgi.application"
 
+ASGI_APPLICATION = "monitor_api.asgi.application"
+
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -146,6 +152,4 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOW_ALL_ORIGINS = True

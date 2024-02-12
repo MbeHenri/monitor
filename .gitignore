@@ -25,7 +25,7 @@
 /monitor-front/yarn-error.log*
 
 # !!!!!! back - api
-/monitor.env
+/*env
 /monitor_api/db.sqlite3
 
 /monitor_api/*/__pycache__
