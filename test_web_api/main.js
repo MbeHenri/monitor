@@ -1,17 +1,27 @@
 
-var conn = new WebSocket('ws://127.0.0.1:8000/chat/10/');
+var conn = new WebSocket('ws://127.0.0.1:8000/ws/servers/session/100/1/mbe/00');
 
 conn.onopen = function (e) {
-    alert("Connection established!");
 };
 
 conn.onmessage = function (e) {
     console.log(e.data);
-    message = document.createElement("span");
+    message = document.createElement("div");
     message.innerHTML = e.data;
-    document.getElementById("content").append(message)
+    document.getElementById("content").appendChild(message)
+    // conn.send(`{"server_id":${1}}`)
 };
 
-timer = window.setInterval(() => {
+conn.onclose = function (e) {
+    console.log(e);
+};
+
+/* timer = window.setInterval(() => {
     conn.send(`{"server_id":${1}}`)
-}, 10000);
+}, 1000); */
+
+document.getElementById("send_btn").addEventListener("click", (e) => {
+    const body = { cmd_type: "swap" }
+    conn.send(JSON.stringify(body));
+})
+

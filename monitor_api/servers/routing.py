@@ -1,11 +1,7 @@
-from django.urls import re_path
-from servers.consumers import ChatConsumer
+from django.urls import path
+from servers.consumers import AccessibleServerConsumer, SessionServerConsumer
 
 websocket_urlpatterns = [
-    re_path(r"ws/chat/(?P<room_name>\w+)/$", ChatConsumer.as_asgi()),
+    path("ws/servers/accessible/<str:token>", AccessibleServerConsumer.as_asgi()),
+    path("ws/servers/session/<str:token>/<str:server_id>/<str:login>/<str:password>", SessionServerConsumer.as_asgi()),
 ]
-
-""" websocket_patterns = [
-    path(r"accessible/<str:token>", AccessibleServerConsumer.as_asgi()),
-    path(r"session/<str:token>/<str:login>/<str:password>", SessionServerConsumer.as_asgi()),
-] """
