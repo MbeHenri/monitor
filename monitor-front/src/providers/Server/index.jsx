@@ -1,9 +1,9 @@
 import { useState, createContext, useCallback, useEffect } from "react";
 import { add_server, delete_server, list_servers } from "../../apis/Server";
-import { useAuth } from "../../hooks/Auth";
+import { useAuth } from "../Auth/hooks";
 import { serverWebAPIUrl } from "../../apis/Server/path";
 import { delay } from "../../utils/functions";
-import { useSetting } from "../../hooks/Setting";
+import { useSetting } from "../Setting/hooks";
 
 export const ServerContext = createContext();
 const ServerProvider = ({ children }) => {
@@ -12,7 +12,7 @@ const ServerProvider = ({ children }) => {
   // Recupération de l'utilisateur
   const { user } = useAuth();
   // Recupération des paramètres de l'utilisateur
-  const { delayAccess } = useSetting();
+  const { delayAccess, delayServer } = useSetting();
 
   /* Chargement de la liste des serveurs */
 
@@ -52,27 +52,6 @@ const ServerProvider = ({ children }) => {
     loadServers();
   }, [user]);
 
-  // méthode de suppréssion de serveurs
-  const deleteServer = useCallback(
-    async (idServer) => {
-      if (user) {
-        return await delete_server(user, idServer).then((res) => {
-          const { error } = res;
-          if (!error) {
-            setServers(servers.filter((server) => server.id !== idServer));
-            setCurrentServer(null);
-            return false;
-          } else {
-            return { error: error };
-          }
-        });
-      } else {
-        return { error: "auth" };
-      }
-    },
-    [servers, user]
-  );
-
   /* Gestion du flux de vérification de l'accessiblité des serveurs */
 
   // variable du websocket du flux
@@ -81,37 +60,6 @@ const ServerProvider = ({ children }) => {
   const [isAccesibleServers, setIsAccesibleServers] = useState({});
   // variable du message reçu en tete du flux
   const [headMsgInFluxAccess, setHeadMsgInFluxAccess] = useState(null);
-
-  // methodes d'ajout et de suppresion de serveurs
-  const addServer = useCallback(
-    async (formdata) => {
-      if (user) {
-        return await add_server(user, formdata).then((server) => {
-          const { error } = server;
-          if (!error) {
-            const { id, hostname, friendlyname } = server;
-            setServers([
-              ...servers,
-              {
-                id: id,
-                friendlyname: friendlyname,
-                hostname: hostname,
-              },
-            ]);
-            if (fluxAccesServer) {
-              fluxAccesServer.send(`{"server_id":${id}}`);
-            }
-            return false;
-          } else {
-            return { error: error };
-          }
-        });
-      } else {
-        return { error: "auth" };
-      }
-    },
-    [fluxAccesServer, servers, user]
-  );
 
   // Lancement du flux d'accéssibilité des serveurs
   useEffect(() => {
@@ -145,7 +93,7 @@ const ServerProvider = ({ children }) => {
           if (!alreadyRunFirstPing) {
             console.log("--->   send First pings");
             servers.forEach((server) =>
-              fluxAccesServer.send(`{"server_id":${server.id}}`)
+              fluxAccesServer.send(JSON.stringify({ server_id: server.id }))
             );
             setAlreadyRunFirstPing(true);
           }
@@ -155,20 +103,22 @@ const ServerProvider = ({ children }) => {
     return () => {};
   }, [alreadyRunFirstPing, fluxAccesServer, isLoading, servers, user]);
 
-  // Gestion du flux d'accéssibilté des serveurs
+  // Gestion du bouclage utilisant le flux d'accéssibilté des serveurs
   useEffect(() => {
     const handle = async () => {
-      if (headMsgInFluxAccess) {
-        const newdict = { ...isAccesibleServers };
-        const { id, value, error } = headMsgInFluxAccess;
-        if (!error) {
-          // console.log(headMsgInFluxAccess);
-          newdict[id] = value;
-          setIsAccesibleServers(newdict);
-          if (fluxAccesServer) {
-            delay(delayAccess).then(() =>
-              fluxAccesServer.send(`{"server_id":${id}}`)
-            );
+      if (user) {
+        if (headMsgInFluxAccess) {
+          const { id, value, error } = headMsgInFluxAccess;
+          if (!error) {
+            // console.log(headMsgInFluxAccess);
+            const newdict = { ...isAccesibleServers };
+            newdict[id] = value;
+            setIsAccesibleServers(newdict);
+            if (fluxAccesServer) {
+              delay(delayAccess).then(() =>
+                fluxAccesServer.send(JSON.stringify({ server_id: id }))
+              );
+            }
           }
         }
       }
@@ -178,12 +128,182 @@ const ServerProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fluxAccesServer, headMsgInFluxAccess]);
 
+  // methode d'ajout et de suppresion de serveurs
+  const addServer = useCallback(
+    async (formdata) => {
+      if (user) {
+        return await add_server(user, formdata).then((server) => {
+          const { error } = server;
+          if (!error) {
+            const { id, hostname, friendlyname } = server;
+            setServers([
+              ...servers,
+              {
+                id: id,
+                friendlyname: friendlyname,
+                hostname: hostname,
+              },
+            ]);
+            if (fluxAccesServer) {
+              const body = { server_id: id };
+              fluxAccesServer.send(JSON.stringify(body));
+            }
+            return false;
+          } else {
+            return { error: error };
+          }
+        });
+      } else {
+        return { error: "auth" };
+      }
+    },
+    [fluxAccesServer, servers, user]
+  );
+
   /* Gestion du flux des sessions de serveurs */
 
-  // Lancement du flux de sessions de serveurs
-  
+  const [sessions, setSessions] = useState({});
+  const [dataSessionServers, setDataSessionServers] = useState({});
+
+  const setSession = useCallback(
+    (idServer, flux) => {
+      const newsession = { ...sessions };
+      newsession[idServer] = flux;
+      setSessions(newsession);
+    },
+    [sessions]
+  );
+
+  const clearSession = useCallback(
+    (idServer) => {
+      const newsession = { ...sessions };
+      newsession[idServer] = null;
+      setSessions(newsession);
+    },
+    [sessions]
+  );
+
+  const clearSessions = useCallback(() => {
+    servers.forEach((server) => {
+      if (sessions[server.id]) {
+        sessions[server.id].close();
+      }
+    });
+    setSessions([]);
+  }, [servers, sessions]);
+
+  const handleCommandServer = useCallback(
+    async (idServer, result) => {
+      if (user) {
+        const { cmd_type, data, error } = result;
+        if (!error) {
+          // console.log(headMsgInFluxAccess);
+          const datas = { ...dataSessionServers };
+          datas[idServer][cmd_type] = data[cmd_type];
+          setDataSessionServers(datas);
+          if (sessions[idServer]) {
+            delay(delayServer).then(() =>
+              sessions[idServer].send(JSON.stringify({ cmd_type: cmd_type }))
+            );
+          }
+        }
+      }
+    },
+    [dataSessionServers, delayServer, sessions, user]
+  );
+
+  // méthode de connection à un serveur donné
+  const connexionServer = useCallback(
+    async (idServer, formdata) => {
+      if (user) {
+        if (!sessions[idServer]) {
+          // `${serverWebAPIUrl}/servers/accessible/${user.token}`
+          const { login, password } = formdata;
+          var flux = new WebSocket(
+            `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}`
+          );
+
+          flux.onopen = () => setSession(idServer, flux);
+          flux.onmessage = (e) => {
+            // rediriger les entrées
+            handleCommandServer(idServer, JSON.parse(e.data));
+          };
+          flux.onclose = () => clearSession(idServer);
+          flux.onerror = (e) => console.log(e);
+        }
+        return true;
+      } else {
+        return false;
+      }
+    },
+    [clearSession, handleCommandServer, sessions, setSession, user]
+  );
+
+  // méthode de déconnexion d'un serveur
+  const deconnexionServer = useCallback(
+    async (idServer) => {
+      if (user) {
+        if (sessions[idServer]) {
+          sessions[idServer].close();
+          clearSession(idServer);
+        } else {
+        }
+        return true;
+      } else {
+        return false;
+      }
+    },
+    [clearSession, sessions, user]
+  );
+
+  // méthode pour deconnecter tous les serveurs
+  const deconnexionServers = useCallback(async () => {
+    if (user) {
+      // on libère les connexions des serveurs sur lesquels on était connecter
+      servers.forEach((server) => {
+        if (sessions[server.id]) {
+          sessions[server.id].close();
+        }
+      });
+      clearSessions();
+      return true;
+    } else {
+      return false;
+    }
+  }, [clearSessions, servers, sessions, user]);
+
   // variable du serveur courant
   const [currentServer, setCurrentServer] = useState(null);
+
+  // méthode de suppréssion de serveurs
+  const deleteServer = useCallback(
+    async (idServer) => {
+      if (user) {
+        return await delete_server(user, idServer).then((res) => {
+          const { error } = res;
+          if (!error) {
+            // on déconnecte le serveur s'il est connecté
+            deconnexionServer(idServer);
+
+            // on retire le serveur de l'ensemble des serveurs
+            setServers(servers.filter((server) => server.id !== idServer));
+
+            // on vide le serveur si c'était lui
+            currentServer &&
+              currentServer.id === idServer &&
+              setCurrentServer(null);
+            return false;
+          } else {
+            return { error: error };
+          }
+        });
+      } else {
+        return { error: "auth" };
+      }
+    },
+    [currentServer, deconnexionServer, servers, user]
+  );
+
   // variable du service courant
   const [currentService, setCurrentService] = useState(null);
 
@@ -201,6 +321,12 @@ const ServerProvider = ({ children }) => {
         isAccesibleServers,
         addServer,
         deleteServer,
+
+        sessions,
+        dataSessionServers,
+        connexionServer,
+        deconnexionServer,
+        deconnexionServers,
 
         currentServer,
         updateCurrentServer,

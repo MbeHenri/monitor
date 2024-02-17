@@ -1,8 +1,7 @@
 
-var conn = new WebSocket('ws://127.0.0.1:8000/ws/servers/accessible/100');
+var conn = new WebSocket('ws://127.0.0.1:8000/ws/servers/session/100/1/mbe/00');
 
 conn.onopen = function (e) {
-    conn.send(`{"server_id":${1}}`)
 };
 
 conn.onmessage = function (e) {
@@ -23,7 +22,6 @@ conn.onclose = function (e) {
 
 document.getElementById("send_btn").addEventListener("click", (e) => {
     const body = { cmd_type: "swap" }
-    conn.send(`{"server_id":${1}}`)
-    //conn.send(JSON.stringify(body));
+    conn.send(JSON.stringify(body));
 })
 

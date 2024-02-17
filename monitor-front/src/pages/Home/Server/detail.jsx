@@ -11,6 +11,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   useCurrentServer,
@@ -21,12 +22,18 @@ import { AccessibleBadge } from "../../../components/Server";
 import UptimeComponent from "../../../components/Server/uptime";
 import MemoryComponent from "../../../components/Server/memory";
 import CpuComponent from "../../../components/Server/cpu";
-import Services from "../../../components/Server/services";
+import Services from "../../../components/Server/Service/services";
+import { useRef } from "react";
+import { ConnectServerForm } from "../../../components/Forms/ConnectServerForm";
 
 function ServerHome() {
   const { currentServer } = useCurrentServer();
   const { deleteServer } = useServer();
   const { isAccessible } = useIsAccessibleServer(currentServer.id);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const initialRef = useRef(null);
+  const finalRef = useRef(null);
 
   const handleDelete = () => {
     deleteServer(currentServer.id);
@@ -45,9 +52,16 @@ function ServerHome() {
           <Text>{currentServer.friendlyname}</Text>
         </Box>
         <HStack>
-          <Button>
+          <Button onClick={onOpen}>
             {currentServer.inSession ? "Deconnecter" : "Connecter"}
           </Button>
+          <ConnectServerForm
+            finalRef={finalRef}
+            initialRef={initialRef}
+            isOpen={isOpen}
+            onClose={onClose}
+          />
+
           <Button colorScheme="red" onClick={handleDelete}>
             Supprimer
           </Button>

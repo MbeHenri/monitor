@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   );
 
   // cette fonction est la fonction permettant de se déconnecter
-  // il utilisera l'API de deconnexion
+  // il utilisera potentiellement l'API de deconnexion
   const logout = useCallback(async () => {
     setUser(null);
     navigate("/login", { replace: true });

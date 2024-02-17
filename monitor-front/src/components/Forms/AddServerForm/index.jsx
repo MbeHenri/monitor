@@ -23,6 +23,7 @@ export function AddServerForm({ initialRef, finalRef, isOpen, onClose }) {
   const [friendlyname, setFriendlyname] = useState("");
 
   const clear = () => {
+    setIsSubmitting(false);
     errorHostname && setErrorHostname(false);
     setHostname("");
     setFriendlyname("");

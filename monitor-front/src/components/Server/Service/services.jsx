@@ -1,7 +1,7 @@
 import { Box, Input, Stack, Text } from "@chakra-ui/react";
-import { useServicesServer } from "../../hooks/Service";
-import ServiceComponent from "./service";
 import { useState } from "react";
+import { useServicesServer } from "../../../providers/Server/hooks";
+import ServiceComponent from ".";
 
 function Services() {
   const { services } = useServicesServer();

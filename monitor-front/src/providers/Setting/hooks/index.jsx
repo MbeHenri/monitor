@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SettingContext } from "../../providers/Setting";
+import { SettingContext } from "..";
 
 /**
  * hook permettant d'avoir les settings sur l'utilisateur, avec les fonctions de connexion et de déconnexion

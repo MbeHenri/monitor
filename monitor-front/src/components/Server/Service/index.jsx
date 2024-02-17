@@ -1,5 +1,5 @@
 import { Box, Button, Text } from "@chakra-ui/react";
-import { AccessibleBadge } from ".";
+import { AccessibleBadge } from "..";
 
 function ServiceComponent({ data }) {
   /* const { currentServer } = useCurrentServer(); */
