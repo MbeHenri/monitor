@@ -3,7 +3,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from servers.models import Server
-from servers.utils import accessible_server
+from servers.cmds import accessible_server, cpu, disk, memory, services, uptime, swap
 
 from pssh.clients import SSHClient
 
@@ -22,7 +22,7 @@ class AccessibleServerConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, text_data=None, byte_data=None):
         server_id = text_data["server_id"]
         res = await self.getAccessible(server_id)
-        await self.send(text_data=json.dumps(res))
+        await self.send_json(res)
 
     @database_sync_to_async
     def getAccessible(self, server_id):
@@ -89,111 +89,33 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
 
     async def handle_services(self, res):
         res["data"] = {
-            "services": [],
+            "services": services(self.client),
         }
-        # commande pour obtenir la liste des services
-        host_output = self.client.run_command(
-            """ systemctl list-units --type=service --all --plain --no-pager --no-legend | awk '{ print "\"$1\"#\"$2\"#\"$3\"#\"$4\"" }' """,
-        )
-
-        for line in host_output.stdout:
-            output = line.split("#")
-            res["data"]["services"].append(
-                {
-                    "name": output[0].split(".")[0],
-                    "is_loaded": output[1] == "loaded",
-                    "is_active": output[2] == "active",
-                    "state": output[3],
-                },
-            )
 
     async def handle_uptime(self, res):
         res["data"] = {
-            "uptime": {},
+            "uptime": uptime(self.client),
         }
-        # commandes pour obtenir les pourcentages d'utilisation de la swap
-        host_output = self.client.run_command(
-            """ uptime -p | awk '{ print "\"$2\"#\"$4\"#\"$6\"" }' """,
-        )
-        for line in host_output.stdout:
-            output = line.split("#")
-            res["data"]["uptime"] = {
-                "days": int(output[0]),
-                "hours": int(output[1]),
-                "minutes": int(output[2]),
-            }
 
     async def handle_swap(self, res):
         res["data"] = {
-            "swap": {},
+            "swap": swap(self.client),
         }
-
-        # commandes pour obtenir les pourcentages d'utilisation de la swap
-        host_output = self.client.run_command(
-            """ swapon |  awk 'NR==2 { print $3 }' """,
-        )
-        output = "".join(list(host_output.stdout))
-        res["data"]["swap"]["size"] = output
-
-        host_output = self.client.run_command(
-            """ swapon -s | awk 'NR==2 {print "\"$4\"#\"$3\""}' """,
-        )
-        output = "".join(list(host_output.stdout))
-        output = output.split("#")
-        res["data"]["swap"]["used"] = int(output[0]) / int(output[1])
 
     async def handle_memory(self, res):
         res["data"] = {
-            "memory": {},
+            "memory": memory(self.client),
         }
-
-        # commandes pour obtenir les pourcentages d'utilisation de la mémoire
-        host_output = self.client.run_command(
-            """ free -h --si | awk 'NR==2 {print $2}' """,
-        )
-        output = "".join(list(host_output.stdout))
-        res["data"]["memory"]["size"] = output
-        
-        host_output = self.client.run_command(
-            """ free | awk 'NR==2 {print "\"$3\"#\"$2\""}' """,
-        )
-        output = "".join(list(host_output.stdout))
-        output = output.split("#")
-        res["data"]["memory"]["used"] = int(output[0]) / int(output[1])
 
     async def handle_disk(self, res):
         res["data"] = {
-            "disks": [],
+            "disks": disk(self.client),
         }
-        # commande pour obtenir les pourcentages d'utilisation des disques du serveur
-        host_output = self.client.run_command(
-            """ df -h | grep -v 'snap' | grep -v 'tmpfs' | tail -n +2 | awk '{print "\"$2\"#\"$6\"#\"$5\"" }' """,
-        )
-        for line in host_output.stdout:
-            output = line.split("#")
-            res["data"]["disks"].append(
-                {
-                    "size": output[0],
-                    "mounted": output[1],
-                    "used": float(output[2].strip("%")),
-                }
-            )
 
     async def handle_cpu(self, res):
         res["data"] = {
-            "cpus": [],
+            "cpus": cpu(self.client),
         }
-        # commande pour obtenir les pourcentages d'utilisation des CPUs du serveur
-        host_output = self.client.run_command(
-            "mpstat -P ALL 1 1 -o JSON",
-        )
-        output = "".join(list(host_output.stdout))
-        output = json.loads(output)
-
-        for cpu in output["sysstat"]["hosts"][0]["statistics"][0]["cpu-load"]:
-            cpu_id = cpu["cpu"]
-            if cpu_id != "all":
-                res["data"]["cpus"].append({"num": cpu_id, "using": cpu["usr"]})
 
     @database_sync_to_async
     def get_hostname(self):

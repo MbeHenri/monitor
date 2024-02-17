@@ -1,4 +1,10 @@
-import { useState, createContext, useCallback, useEffect } from "react";
+import {
+  useState,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import { add_server, delete_server, list_servers } from "../../apis/Server";
 import { useAuth } from "../Auth/hooks";
 import { serverWebAPIUrl } from "../../apis/Server/path";
@@ -162,9 +168,8 @@ const ServerProvider = ({ children }) => {
 
   /* Gestion du flux des sessions de serveurs */
 
+  // variable de l'ensemble des sessions
   const [sessions, setSessions] = useState({});
-  const [dataSessionServers, setDataSessionServers] = useState({});
-
   const setSession = useCallback(
     (idServer, flux) => {
       const newsession = { ...sessions };
@@ -191,6 +196,8 @@ const ServerProvider = ({ children }) => {
     });
     setSessions([]);
   }, [servers, sessions]);
+  // variable de l'ensemble des données issus des serveurs
+  const [dataSessionServers, setDataSessionServers] = useState({});
 
   const handleCommandServer = useCallback(
     async (idServer, result) => {
@@ -213,6 +220,10 @@ const ServerProvider = ({ children }) => {
   );
 
   // méthode de connection à un serveur donné
+  const COMMANDS = useMemo(
+    () => ["cpu", "disk", "memory", "swap", "uptime", "services"],
+    []
+  );
   const connexionServer = useCallback(
     async (idServer, formdata) => {
       if (user) {
@@ -223,7 +234,14 @@ const ServerProvider = ({ children }) => {
             `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}`
           );
 
-          flux.onopen = () => setSession(idServer, flux);
+          flux.onopen = () => {
+            // on ajoute le serveur dans l'ensemble des serveurs
+            setSession(idServer, flux);
+            // on envoie tous les types de commandes au serveur
+            COMMANDS.forEach(async (cmd_type) => {
+              flux.send(JSON.stringify({ cmd_type: cmd_type }));
+            });
+          };
           flux.onmessage = (e) => {
             // rediriger les entrées
             handleCommandServer(idServer, JSON.parse(e.data));
@@ -236,7 +254,7 @@ const ServerProvider = ({ children }) => {
         return false;
       }
     },
-    [clearSession, handleCommandServer, sessions, setSession, user]
+    [COMMANDS, clearSession, handleCommandServer, sessions, setSession, user]
   );
 
   // méthode de déconnexion d'un serveur
