@@ -209,7 +209,7 @@ const ServerProvider = ({ children }) => {
           datas[idServer][cmd_type] = data[cmd_type];
           setDataSessionServers(datas);
           if (sessions[idServer]) {
-            delay(delayServer).then(() =>
+            delay(delayServer[cmd_type]).then(() =>
               sessions[idServer].send(JSON.stringify({ cmd_type: cmd_type }))
             );
           }
@@ -224,6 +224,7 @@ const ServerProvider = ({ children }) => {
     () => ["cpu", "disk", "memory", "swap", "uptime", "services"],
     []
   );
+  const [isConnecting, setIsConneting] = useState({});
   const connexionServer = useCallback(
     async (idServer, formdata) => {
       if (user) {
@@ -233,6 +234,9 @@ const ServerProvider = ({ children }) => {
           var flux = new WebSocket(
             `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}`
           );
+          const connected = { ...isConnecting };
+          connected[idServer] = true;
+          setIsConneting(connected);
 
           flux.onopen = () => {
             // on ajoute le serveur dans l'ensemble des serveurs
@@ -249,12 +253,17 @@ const ServerProvider = ({ children }) => {
           flux.onclose = () => clearSession(idServer);
           flux.onerror = (e) => console.log(e);
         }
-        return true;
-      } else {
-        return false;
       }
     },
-    [COMMANDS, clearSession, handleCommandServer, sessions, setSession, user]
+    [
+      COMMANDS,
+      clearSession,
+      handleCommandServer,
+      isConnecting,
+      sessions,
+      setSession,
+      user,
+    ]
   );
 
   // méthode de déconnexion d'un serveur
@@ -341,6 +350,7 @@ const ServerProvider = ({ children }) => {
         deleteServer,
 
         sessions,
+        isConnecting,
         dataSessionServers,
         connexionServer,
         deconnexionServer,

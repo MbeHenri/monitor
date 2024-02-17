@@ -11,7 +11,7 @@ from servers.serializers import ServerSerializer
 from servers.models import Server
 from servers.forms import ServerValidateForm
 
-from servers.utils import accessible_server
+from servers.cmds import accessible_server
 
 
 class ServerViewset(ModelViewSet):

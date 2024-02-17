@@ -1,4 +1,3 @@
-import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -109,7 +108,7 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
 
     async def handle_disk(self, res):
         res["data"] = {
-            "disks": disk(self.client),
+            "disk": disk(self.client),
         }
 
     async def handle_cpu(self, res):

@@ -82,6 +82,7 @@ def memory(client: SSHClient):
     output = "".join(list(host_output.stdout))
     output = output.split("#")
     memory["used"] = int(output[0]) / int(output[1])
+    return memory
 
 
 def disk(client: SSHClient):
@@ -114,5 +115,5 @@ def cpu(client: SSHClient):
     for cpu in output["sysstat"]["hosts"][0]["statistics"][0]["cpu-load"]:
         cpu_id = cpu["cpu"]
         if cpu_id != "all":
-            cpus.append({"num": cpu_id, "using": cpu["usr"]})
+            cpus.append({"num": cpu_id, "used": cpu["usr"]})
     return cpus

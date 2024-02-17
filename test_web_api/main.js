@@ -21,7 +21,7 @@ conn.onclose = function (e) {
 }, 1000); */
 
 document.getElementById("send_btn").addEventListener("click", (e) => {
-    const body = { cmd_type: "swap" }
+    const body = { cmd_type: "disk" }
     conn.send(JSON.stringify(body));
 })
 

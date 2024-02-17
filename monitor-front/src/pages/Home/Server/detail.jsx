@@ -1,6 +1,9 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Container,
   HStack,
   Heading,
@@ -23,21 +26,36 @@ import UptimeComponent from "../../../components/Server/uptime";
 import MemoryComponent from "../../../components/Server/memory";
 import CpuComponent from "../../../components/Server/cpu";
 import Services from "../../../components/Server/Service/services";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ConnectServerForm } from "../../../components/Forms/ConnectServerForm";
+import SwapComponent from "../../../components/Server/swap";
+import DiskComponent from "../../../components/Server/disk";
+import { useSessionServer } from "../../../providers/Server/hooks";
 
 function ServerHome() {
-  const { currentServer } = useCurrentServer();
   const { deleteServer } = useServer();
+  const { currentServer, deconnexionServer } = useCurrentServer();
   const { isAccessible } = useIsAccessibleServer(currentServer.id);
+  const { inSession, isConnecting } = useSessionServer(currentServer.id);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     deleteServer(currentServer.id);
-  };
+  }, [currentServer, deleteServer]);
+
+  // state for submitting authenticate form
+  const [isDeconneting, setIsDeconneting] = useState(false);
+
+  // fonction pour déconnecter le serveur
+  const deconnexion = useCallback(() => {
+    setIsDeconneting(true);
+    deconnexionServer(currentServer.id).finally(() => {
+      setIsDeconneting(false);
+    });
+  }, [currentServer, deconnexionServer]);
 
   return (
     <Container maxW="container.lg">
@@ -52,15 +70,23 @@ function ServerHome() {
           <Text>{currentServer.friendlyname}</Text>
         </Box>
         <HStack>
-          <Button onClick={onOpen}>
-            {currentServer.inSession ? "Deconnecter" : "Connecter"}
-          </Button>
-          <ConnectServerForm
-            finalRef={finalRef}
-            initialRef={initialRef}
-            isOpen={isOpen}
-            onClose={onClose}
-          />
+          {inSession ? (
+            <Button isDisabled={isDeconneting} onClick={deconnexion}>
+              Deconnecter
+            </Button>
+          ) : (
+            <>
+              <Button onClick={onOpen}>Connecter</Button>
+              <ConnectServerForm
+                isAccessible={isConnecting}
+                idServer={currentServer.id}
+                finalRef={finalRef}
+                initialRef={initialRef}
+                isOpen={isOpen}
+                onClose={onClose}
+              />
+            </>
+          )}
 
           <Button colorScheme="red" onClick={handleDelete}>
             Supprimer
@@ -75,18 +101,49 @@ function ServerHome() {
 
           <TabPanels>
             <TabPanel pl="0" pr="0">
-              {currentServer.inSession ? (
+              {inSession ? (
                 <Stack>
-                  <UptimeComponent />
-                  <MemoryComponent />
-                  <CpuComponent />
+                  <Card>
+                    <CardHeader color="onbgheardercard" bgColor="bgheardercard">
+                      <Heading as="h2" size="md">
+                        Memories
+                      </Heading>
+                    </CardHeader>
+                    <CardBody>
+                      <MemoryComponent />
+                      <SwapComponent />
+                      <DiskComponent />
+                    </CardBody>
+                  </Card>
+
+                  <Card>
+                    <CardHeader color="onbgheardercard" bgColor="bgheardercard">
+                      <Heading as="h2" size="md">
+                        Uptime
+                      </Heading>
+                    </CardHeader>
+                    <CardBody>
+                      <UptimeComponent />
+                    </CardBody>
+                  </Card>
+
+                  <Card>
+                    <CardHeader color="onbgheardercard" bgColor="bgheardercard">
+                      <Heading as="h2" size="md">
+                        CPUS
+                      </Heading>
+                    </CardHeader>
+                    <CardBody>
+                      <CpuComponent />
+                    </CardBody>
+                  </Card>
                 </Stack>
               ) : (
                 <p>Vous n'etes pas connecter au serveur</p>
               )}
             </TabPanel>
             <TabPanel>
-              {currentServer.inSession ? (
+              {inSession ? (
                 <Services />
               ) : (
                 <p>Vous n'etes pas connecter au serveur</p>

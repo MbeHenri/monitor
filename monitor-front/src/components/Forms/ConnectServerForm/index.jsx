@@ -18,8 +18,16 @@ import { useState } from "react";
 import { useServer } from "../../hooks/Server";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
-export function ConnectServerForm({ initialRef, finalRef, isOpen, onClose }) {
-  // const { addServer } = useServer();
+export function ConnectServerForm({
+  idServer,
+  initialRef,
+  finalRef,
+  isOpen,
+  onClose,
+}) {
+  const { connexionServer } = useServer();
+
+  // variable pour le formulaire
 
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -61,10 +69,12 @@ export function ConnectServerForm({ initialRef, finalRef, isOpen, onClose }) {
       setErrorConnect(true);
     } else {
       setIsSubmitting(true);
-      /* addServer({ Login: login, Password: password }).finally(() => {
-        setIsSubmitting(false);
-        close();
-      }); */
+      connexionServer(idServer, { login: login, password: password }).finally(
+        () => {
+          setIsSubmitting(false);
+          close();
+        }
+      );
     }
   };
   return (

@@ -8,7 +8,7 @@ function ServiceComponent({ data }) {
       <Button
         fontWeight="300"
         borderRadius="0"
-        leftIcon={<AccessibleBadge isAccessible={data.isRunning} />}
+        leftIcon={<AccessibleBadge isAccessible={data.is_active} />}
       >
         <Text>{data.name}</Text>
       </Button>

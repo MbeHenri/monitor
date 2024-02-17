@@ -1,10 +1,16 @@
-import { Box, Input, Stack, Text } from "@chakra-ui/react";
+import { Box, Input, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import { useServicesServer } from "../../../providers/Server/hooks";
+import {
+  useCmdServer,
+  useCurrentServer,
+} from "../../../providers/Server/hooks";
 import ServiceComponent from ".";
 
 function Services() {
-  const { services } = useServicesServer();
+  const { currentServer } = useCurrentServer();
+  const { data } = useCmdServer(currentServer.id, "services");
+  const services = data;
+
   const [nameFilter, setNameFilter] = useState("");
   const handleNameFilter = (event) => setNameFilter(event.target.value);
   return (
@@ -18,17 +24,21 @@ function Services() {
         />
       </Box>
       <Stack>
-        {services.length > 0 ? (
-          services
-            .filter((service) => {
-              console.log(service.name.includes(nameFilter));
-              return service.name.includes(nameFilter);
-            })
-            .map((service, index) => (
-              <ServiceComponent key={`service-${index}`} data={service} />
-            ))
+        {services ? (
+          services.length > 0 ? (
+            services
+              .filter((service) => {
+                //console.log(service.name.includes(nameFilter));
+                return service.name.includes(nameFilter);
+              })
+              .map((service, index) => (
+                <ServiceComponent key={`service-${index}`} data={service} />
+              ))
+          ) : (
+            <Text>Aucun service n'est visible</Text>
+          )
         ) : (
-          <Text>Aucun service n'est visible</Text>
+          <Spinner />
         )}
       </Stack>
     </Stack>

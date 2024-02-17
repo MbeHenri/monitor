@@ -12,57 +12,65 @@ import {
   Input,
   ModalFooter,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useServer } from "../../hooks/Server";
 
 export function AddServerForm({ initialRef, finalRef, isOpen, onClose }) {
   const { addServer } = useServer();
 
+  // variables du formulaire
   const [hostname, setHostname] = useState("");
   const [errorHostname, setErrorHostname] = useState(false);
   const [friendlyname, setFriendlyname] = useState("");
 
-  const clear = () => {
+  const clear = useCallback(() => {
     setIsSubmitting(false);
     errorHostname && setErrorHostname(false);
     setHostname("");
     setFriendlyname("");
-  };
+  }, [errorHostname]);
 
-  const close = () => {
+  const close = useCallback(() => {
     clear();
     onClose();
-  };
+  }, [clear, onClose]);
 
-  const handleChangeHostname = (event) => {
-    setHostname(event.target.value);
-    errorHostname && setErrorHostname(false);
-  };
+  const handleChangeHostname = useCallback(
+    (event) => {
+      setHostname(event.target.value);
+      errorHostname && setErrorHostname(false);
+    },
+    [errorHostname]
+  );
 
-  const handleChangeFriendlyname = (event) => {
+  const handleChangeFriendlyname = useCallback((event) => {
     setFriendlyname(event.target.value);
-  };
+  }, []);
 
   // state for submitting authenticate form
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // function to handle a submittion
-  const handleSubmit = (event) => {
-    if (event.key && event.key !== "Enter") {
-      return;
-    }
-    if (hostname === "") {
-      setErrorHostname(true);
-    } else {
-      setIsSubmitting(true);
-      addServer({ hostname: hostname, friendlyname: friendlyname }).finally(
-        () => {
-          setIsSubmitting(false);
-          close();
-        }
-      );
-    }
-  };
+  // méthode pour soumettre le formulaire
+  const handleSubmit = useCallback(
+    (event) => {
+      if (event.key && event.key !== "Enter") {
+        return;
+      }
+      if (hostname === "") {
+        setErrorHostname(true);
+      } else {
+        setIsSubmitting(true);
+        addServer({ hostname: hostname, friendlyname: friendlyname }).finally(
+          () => {
+            setIsSubmitting(false);
+            close();
+          }
+        );
+      }
+    },
+    [addServer, close, friendlyname, hostname]
+  );
+
   return (
     <Portal>
       <Modal

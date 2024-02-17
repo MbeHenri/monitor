@@ -23,10 +23,10 @@ import { AddServerForm } from "../../components/AddServerForm";
 import { useRef } from "react";
 
 function DefaultHome() {
-  const { isLoading, servers, isAccesibleServers } = useServer();
+  const { isLoading, servers, isAccesibleServers, sessions } = useServer();
 
   const perAccesible = percentageAccessible(servers, isAccesibleServers);
-  const perSession = percentageInSession(servers);
+  const perSession = percentageInSession(servers, sessions);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
@@ -131,9 +131,9 @@ function percentageAccessible(servers, isAccesibleServers) {
   return format_ratio_2_per(per);
 }
 
-function percentageInSession(servers) {
+function percentageInSession(servers, sessions) {
   const per =
-    servers.filter((server) => server.inSession).length / servers.length;
+    servers.filter((server) => sessions[server.id]).length / servers.length;
   return format_ratio_2_per(per);
 }
 
