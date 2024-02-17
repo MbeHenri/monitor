@@ -1,3 +1,5 @@
+import { serverAPIUrl } from "./path";
+
 export async function list_servers(user) {
   var myHeaders = new Headers();
   const { token } = user;
@@ -10,8 +12,7 @@ export async function list_servers(user) {
   };
 
   try {
-    const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
-    var response = await fetch(`${serverAPIUrl}api/v1/server/`, requestOptions);
+    var response = await fetch(`${serverAPIUrl}/server/`, requestOptions);
     var content = await response.json();
     if (response.ok) {
       const { results } = content;
@@ -43,8 +44,7 @@ export async function add_server(user, data) {
   };
 
   try {
-    const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
-    var response = await fetch(`${serverAPIUrl}api/v1/server/`, requestOptions);
+    var response = await fetch(`${serverAPIUrl}/server/`, requestOptions);
     if (response.ok) {
       return await response.json();
     } else {
@@ -68,9 +68,8 @@ export async function delete_server(user, idServer) {
   };
 
   try {
-    const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
     var response = await fetch(
-      `${serverAPIUrl}api/v1/server/${idServer}/`,
+      `${serverAPIUrl}/server/${idServer}/`,
       requestOptions
     );
     if (response.ok) {
@@ -96,9 +95,8 @@ export async function accessible_server(user, idServer) {
   };
 
   try {
-    const serverAPIUrl = process.env.REACT_APP_MONITOR_SERVERS_API_BASE_URL;
     var response = await fetch(
-      `${serverAPIUrl}api/v1/accessible/${idServer}/`,
+      `${serverAPIUrl}/accessible/${idServer}/`,
       requestOptions
     );
     if (response.ok) {

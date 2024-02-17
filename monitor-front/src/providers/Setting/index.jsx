@@ -2,9 +2,10 @@ import { createContext } from "react";
 
 export const SettingContext = createContext();
 export const SettingProvider = ({ children }) => {
-  const reloaddelay = 3000;
+  const delayAccess = 10000;
+  const delayServer = 10000;
   return (
-    <SettingContext.Provider value={{ reloaddelay }}>
+    <SettingContext.Provider value={{ delayAccess, delayServer }}>
       {children}
     </SettingContext.Provider>
   );

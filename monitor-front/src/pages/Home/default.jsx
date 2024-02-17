@@ -31,8 +31,6 @@ function DefaultHome() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
-  
-  console.log(isAccesibleServers);
 
   return (
     <Container maxW="container.lg">
