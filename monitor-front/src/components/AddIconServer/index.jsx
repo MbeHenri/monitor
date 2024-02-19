@@ -6,7 +6,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
 import { AddServerForm } from "../Forms/AddServerForm";
 
-export function AddIconServer() {
+export function AddIconServer({ color = "secondary", size="xs"}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const initialRef = useRef(null);
@@ -15,7 +15,9 @@ export function AddIconServer() {
   return (
     <>
       <IconButton
-        size="sm"
+        size={size}
+        colorScheme={color}
+        bgColor={color}
         onClick={onOpen}
         icon={<AddIcon />}
       />

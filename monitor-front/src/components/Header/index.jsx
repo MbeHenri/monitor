@@ -4,7 +4,6 @@ import {
   Image,
   Box,
   Button,
-  useColorMode,
   useDisclosure,
   DrawerOverlay,
   DrawerContent,
@@ -15,34 +14,50 @@ import {
   DrawerCloseButton,
   DrawerFooter,
   Text,
-  Stack,
   Divider,
-  Skeleton,
   IconButton,
   Hide,
-  Link,
   Show,
 } from "@chakra-ui/react";
-import { EditIcon, LockIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
-import logo_light from "../../assets/logo_light.svg";
-import logo_dark from "../../assets/logo_dark.svg";
+import logo from "../../assets/logo.png";
+//import account_light from "../../assets/account_light.png";
+//import account_dark from "../../assets/account_dark.png";
 
 import ThemeButton from "../ThemeButton";
 import PrivateComponent from "../PrivateComponent";
-import { AddIconServer } from "../AddIconServer";
-import Server from "../Server";
 
 import { useAuth } from "../../providers/Auth/hooks";
-import { useCurrentServer, useServer } from "../../providers/Server/hooks";
+import { useServer } from "../../providers/Server/hooks";
+import { LinkDashboard, Nav } from "../Nav";
+import { Link } from "react-router-dom";
+
+function PersonalComponent() {
+  const { logout } = useAuth();
+  const { deconnexionServers } = useServer();
+
+  return (
+    <HStack gap={3}>
+      <Button variant="link" fontWeight="bold" as={Link} color="black_write">
+        Settings
+      </Button>
+      <Button
+        colorScheme="red"
+        onClick={() =>
+          deconnexionServers().then((ok) => {
+            return ok && logout();
+          })
+        }
+      >
+        Log out
+      </Button>
+    </HStack>
+  );
+}
 
 function Header() {
-  const { colorMode } = useColorMode();
-  const { logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const { servers, isLoading, error, deconnexionServers } = useServer();
-  const { clearCurrentServer } = useCurrentServer();
 
   return (
     <>
@@ -62,11 +77,7 @@ function Header() {
                   />
                 </PrivateComponent>
               </HStack>
-              <Image
-                src={colorMode === "light" ? logo_light : logo_dark}
-                h={45}
-                alt="monitor"
-              />
+              <Image src={logo} h={45} alt="monitor" />
               <HStack>
                 <ThemeButton size="md" />
               </HStack>
@@ -74,12 +85,16 @@ function Header() {
           </Hide>
           <Show above="md">
             <Flex justify="space-between" align="center">
-              <Image
-                src={colorMode === "light" ? logo_light : logo_dark}
-                h={45}
-                alt="monitor"
-              />
               <HStack>
+                <Image src={logo} h={45} alt="monitor" />
+                <Text fontWeight="bold" fontSize="2rem">
+                  Monitor
+                </Text>
+              </HStack>
+
+              <HStack gap={3}>
+                <LinkDashboard />
+                <PersonalComponent />
                 <ThemeButton size="md" />
               </HStack>
             </Flex>
@@ -96,99 +111,17 @@ function Header() {
               <DrawerHeader pl={0} pr={0} pt={2} pb={2}>
                 <Container>
                   <HStack>
-                    <Image
-                      src={colorMode === "light" ? logo_light : logo_dark}
-                      h={45}
-                      alt="monitor"
-                    />
+                    <Image src={logo} h={45} alt="monitor" />
                     <Text>Monitor</Text>
                   </HStack>
                 </Container>
               </DrawerHeader>
 
               {/* Liste des serveurs */}
-              <DrawerBody pt={4}>
-                <Button
-                  variant="link"
-                  as={Link}
-                  onClick={() => {
-                    clearCurrentServer();
-                    onClose();
-                  }}
-                >
-                  <Text color="primary" fontSize="xl">
-                    Dashboard
-                  </Text>
-                </Button>
-                <HStack pt={4}>
-                  {!isLoading ? (
-                    <>
-                      {servers.length > 0 ? (
-                        <>
-                          <Text color="primary" fontSize="xl">
-                            Mes Serveurs
-                          </Text>
-                          <AddIconServer />
-                        </>
-                      ) : (
-                        <></>
-                      )}
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </HStack>
-                {isLoading ? (
-                  <Stack>
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
-                    <Skeleton height="20px" />
-                  </Stack>
-                ) : error ? (
-                  <Text>Erreur</Text>
-                ) : (
-                  <>
-                    {servers.length > 0 ? (
-                      <Stack pt="1rem">
-                        {servers.map((server, index) => (
-                          <Server
-                            key={`server-${index}`}
-                            data={server}
-                            closeNav={onClose}
-                          />
-                        ))}
-                      </Stack>
-                    ) : (
-                      <Stack textAlign="center" mt="27vh">
-                        <Text>Aucun serveur n'est visible</Text>
-                      </Stack>
-                    )}
-                  </>
-                )}
-              </DrawerBody>
+              <DrawerBody pt={4}>{<Nav onClose={onClose} />}</DrawerBody>
 
               <Divider />
-              <DrawerFooter>
-                <Button
-                  leftIcon={<EditIcon />}
-                  variant="link"
-                  as={Link}
-                  mr="1rem"
-                >
-                  Settings
-                </Button>
-                <Button
-                  leftIcon={<LockIcon />}
-                  colorScheme="red"
-                  onClick={() =>
-                    deconnexionServers().then((ok) => {
-                      return ok && logout();
-                    })
-                  }
-                >
-                  SignOut
-                </Button>
-              </DrawerFooter>
+              <DrawerFooter>{<PersonalComponent />}</DrawerFooter>
             </DrawerContent>
           </Drawer>
         </PrivateComponent>

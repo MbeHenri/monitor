@@ -19,7 +19,7 @@ function CpuComponent() {
     <Stack>
       <Stat>
         <StatLabel color="secondary">total</StatLabel>
-        <StatNumber>{cpus ? cpus.length : <Spinner />}</StatNumber>
+        {cpus ? <StatNumber>{cpus.length}</StatNumber> : <Spinner />}
       </Stat>
       <Grid>
         {cpus ? (
@@ -30,7 +30,7 @@ function CpuComponent() {
             </GridItem>
           ))
         ) : (
-          <Spinner />
+          <></>
         )}
       </Grid>
     </Stack>

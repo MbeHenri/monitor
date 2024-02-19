@@ -10,7 +10,7 @@ export function useServer() {
 
 export function useIsAccessibleServer(idServer) {
   const { isAccesibleServers } = useServer();
-  return { isAccessible: isAccesibleServers[idServer] };
+  return { isAccessible: isAccesibleServers.get(idServer) };
 }
 
 /**
@@ -20,8 +20,8 @@ export function useIsAccessibleServer(idServer) {
  */
 export function useCmdServer(idServer, cmd_type) {
   const { dataSessionServers } = useServer();
-  if (dataSessionServers[idServer] && dataSessionServers[idServer][cmd_type]) {
-    return { data: dataSessionServers[idServer][cmd_type] };
+  if (dataSessionServers.has(idServer)) {
+    return { data: dataSessionServers.get(idServer).get(cmd_type) };
   }
   return { data: null };
 }
@@ -41,9 +41,9 @@ export function useCurrentServer() {
  * @returns
  */
 export function useSessionServer(idServer) {
-  const { sessions, isConnecting } = useContext(ServerContext);
+  const { isInConnection, isConnecting } = useContext(ServerContext);
   return {
-    inSession: sessions[idServer],
-    isConnecting: isConnecting[idServer],
+    inSession: isInConnection.get(idServer),
+    isConnecting: isConnecting.get(idServer),
   };
 }

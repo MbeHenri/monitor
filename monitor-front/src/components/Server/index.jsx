@@ -1,5 +1,8 @@
-import { Button, Link, Tooltip } from "@chakra-ui/react";
-import { useCurrentServer, useIsAccessibleServer } from "../../providers/Server/hooks";
+import { Button, Tooltip } from "@chakra-ui/react";
+import {
+  useCurrentServer,
+  useIsAccessibleServer,
+} from "../../providers/Server/hooks";
 import { StateBadge } from "../../utils/Atoms";
 
 function ServerComponent({ data, closeNav }) {
@@ -9,7 +12,10 @@ function ServerComponent({ data, closeNav }) {
   const { isAccessible } = useIsAccessibleServer(data.id);
   return (
     <>
-      <Tooltip label={data.friendlyname} aria-label="A tooltip">
+      <Tooltip
+        label={data.friendlyname}
+        aria-label="A tooltip"
+      >
         <Button
           justifyContent="left"
           iconSpacing={4}
@@ -21,7 +27,6 @@ function ServerComponent({ data, closeNav }) {
           }}
           colorScheme={isCurrentServer ? "primary" : null}
           bgColor={isCurrentServer ? "primary" : null}
-          as={Link}
           onClick={() => {
             updateCurrentServer(data);
             closeNav();

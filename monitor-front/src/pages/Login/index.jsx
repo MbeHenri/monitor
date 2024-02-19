@@ -14,11 +14,11 @@ import {
   Show,
   FormControl,
   FormLabel,
+  Center,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import logo_dark from "../../assets/logo_dark.svg";
-import logo_light from "../../assets/logo_light.svg";
+import logo from "../../assets/logo.png";
 import bgimagedark from "../../assets/laptop-computer-dark.jpg";
 import bgimagelight from "../../assets/laptop-computer-light.jpg";
 import ThemeButton from "../../components/ThemeButton";
@@ -78,12 +78,9 @@ function Login() {
           <Container>
             <Stack spacing={9} mt="0" p="2rem">
               <Stack>
-                <Image
-                  src={colorMode === "dark" ? logo_dark : logo_light}
-                  h={70}
-                  alt="monitor"
-                  mb="1rem"
-                />
+                <Center>
+                  <Image src={logo} h="8rem" alt="monitor" mb="1rem" />
+                </Center>
                 <Heading>Sign In</Heading>
                 <Text>Connectez vous pour monitorer vos serveurs</Text>
               </Stack>

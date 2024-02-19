@@ -1,9 +1,7 @@
 import {
-  Box,
   Button,
   Card,
   CardBody,
-  Container,
   Heading,
   Progress,
   Skeleton,
@@ -12,17 +10,20 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  Text,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useServer } from "../../providers/Server/hooks";
-import empty_server_img from "../../assets/empty_server.png";
 import { AddIcon } from "@chakra-ui/icons";
 import { format_ratio_2_per } from "../../utils/functions";
 import { AddServerForm } from "../../components/Forms/AddServerForm";
 import { useRef } from "react";
 
 function DefaultHome() {
+  return <BodyHome />;
+}
+
+function BodyHome() {
   const { isLoading, servers, isAccesibleServers, sessions } = useServer();
 
   const perAccesible = percentageAccessible(servers, isAccesibleServers);
@@ -33,48 +34,37 @@ function DefaultHome() {
   const finalRef = useRef(null);
 
   return (
-    <Container maxW="container.lg">
-      <Stack gap={4} pt={10}>
-        <Heading color="primary">Dashboard</Heading>
-        {isLoading ? (
-          <StatsBody
-            isLoading={isLoading}
-            servers={servers}
-            perAccesible={perAccesible}
-            perSession={perSession}
+    <Stack gap={4}>
+      <Heading color="primary">Dashboard</Heading>
+      {isLoading ? (
+        <StatsBody
+          isLoading={isLoading}
+          servers={servers}
+          perAccesible={perAccesible}
+          perSession={perSession}
+        />
+      ) : servers.length > 0 ? (
+        <StatsBody
+          isLoading={isLoading}
+          servers={servers}
+          perAccesible={perAccesible}
+          perSession={perSession}
+        />
+      ) : (
+        <VStack align="center" pt="20vh" gap="10">
+          <Heading size="lg">Vous n'avez aucun serveur !!!</Heading>
+          <Button onClick={onOpen} size="lg" leftIcon={<AddIcon />}>
+            Ajouter
+          </Button>
+          <AddServerForm
+            finalRef={finalRef}
+            initialRef={initialRef}
+            isOpen={isOpen}
+            onClose={onClose}
           />
-        ) : servers.length > 0 ? (
-          <StatsBody
-            isLoading={isLoading}
-            servers={servers}
-            perAccesible={perAccesible}
-            perSession={perSession}
-          />
-        ) : (
-          <>
-            <Stack align="center">
-              <Box
-                bgImage={empty_server_img}
-                bgSize={"cover"}
-                bgPosition="center"
-                w="100%"
-                h="50vh"
-              />
-              <Text>Aucun serveur pour le moment</Text>
-              <Button onClick={onOpen} size="lg" leftIcon={<AddIcon />}>
-                Ajouter
-              </Button>
-              <AddServerForm
-                finalRef={finalRef}
-                initialRef={initialRef}
-                isOpen={isOpen}
-                onClose={onClose}
-              />
-            </Stack>
-          </>
-        )}
-      </Stack>
-    </Container>
+        </VStack>
+      )}
+    </Stack>
   );
 }
 
@@ -126,14 +116,14 @@ function StatsBody({ isLoading, servers, perAccesible, perSession }) {
 
 function percentageAccessible(servers, isAccesibleServers) {
   const per =
-    servers.filter((server) => isAccesibleServers[server.id]).length /
+    servers.filter((server) => isAccesibleServers.get(server.id)).length /
     servers.length;
   return format_ratio_2_per(per);
 }
 
 function percentageInSession(servers, sessions) {
   const per =
-    servers.filter((server) => sessions[server.id]).length / servers.length;
+    servers.filter((server) => sessions.has(server.id).length / servers.length);
   return format_ratio_2_per(per);
 }
 

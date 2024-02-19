@@ -11,12 +11,8 @@ function MemoryComponent() {
   return (
     <Box>
       <Heading size="sm">Memoire</Heading>
-      <Text>{memory ? memory.size : <Spinner />}</Text>
-      {memory ? (
-        <Text>`${format_ratio_2_per(memory.used)}%`</Text>
-      ) : (
-        <Spinner />
-      )}
+      {memory ? <Text> {memory.size} </Text> : <Spinner />}
+      {memory ? <Text>`${format_ratio_2_per(memory.used)}%`</Text> : <></>}
     </Box>
   );
 }

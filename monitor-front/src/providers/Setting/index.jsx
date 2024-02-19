@@ -2,7 +2,7 @@ import { createContext } from "react";
 
 export const SettingContext = createContext();
 export const SettingProvider = ({ children }) => {
-  const delayAccess = 3000;
+  const delayAccess = 6000;
 
   const delayServer = {
     cpu: 3000,

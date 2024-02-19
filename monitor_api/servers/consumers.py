@@ -87,34 +87,22 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
                 await self.close(status["CLOSE_UNSUPPORTED"])
 
     async def handle_services(self, res):
-        res["data"] = {
-            "services": services(self.client),
-        }
+        res["data"] = services(self.client)
 
     async def handle_uptime(self, res):
-        res["data"] = {
-            "uptime": uptime(self.client),
-        }
+        res["data"] = uptime(self.client)
 
     async def handle_swap(self, res):
-        res["data"] = {
-            "swap": swap(self.client),
-        }
+        res["data"] = swap(self.client)
 
     async def handle_memory(self, res):
-        res["data"] = {
-            "memory": memory(self.client),
-        }
+        res["data"] = memory(self.client)
 
     async def handle_disk(self, res):
-        res["data"] = {
-            "disk": disk(self.client),
-        }
+        res["data"] = disk(self.client)
 
     async def handle_cpu(self, res):
-        res["data"] = {
-            "cpus": cpu(self.client),
-        }
+        res["data"] = cpu(self.client)
 
     @database_sync_to_async
     def get_hostname(self):

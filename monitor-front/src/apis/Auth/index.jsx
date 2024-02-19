@@ -21,7 +21,7 @@ export async function connection(data) {
     if (response.ok) {
       return content;
     } else {
-      return { ...content, error: true };
+      return { ...content, httpcode: response.statusText, error: true };
     }
   } catch (error) {
     console.log(error);

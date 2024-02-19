@@ -1,11 +1,37 @@
-import { Box } from "@chakra-ui/react";
+import { Container, Grid, GridItem, Show } from "@chakra-ui/react";
 import DefaultHome from "./default";
-import { useCurrentServer } from "../../providers/Server/hooks";
+import { useCurrentServer, useServer } from "../../providers/Server/hooks";
 import ServerHome from "./Server/detail";
+import { Nav } from "../../components/Nav";
+import Error from "../../components/Error";
 
 function Home() {
   const { currentServer } = useCurrentServer();
-  return <Box>{currentServer ? <ServerHome /> : <DefaultHome />}</Box>;
+  const { error } = useServer();
+  return (
+    <>
+      {!error ? (
+        <Container maxW="container.lg">
+          <Grid
+            templateAreas={{ base: `"main"`, md: `"nav main"` }}
+            gridTemplateColumns={{ base: "1fr", md: "1fr 2.5fr" }}
+            gap="4"
+          >
+            <Show above="md">
+              <GridItem pl="2" area={"nav"}>
+                <Nav />
+              </GridItem>
+            </Show>
+            <GridItem pl="2" area={"main"}>
+              {currentServer ? <ServerHome /> : <DefaultHome />}
+            </GridItem>
+          </Grid>
+        </Container>
+      ) : (
+        <Error error={error} />
+      )}
+    </>
+  );
 }
 
 export default Home;
