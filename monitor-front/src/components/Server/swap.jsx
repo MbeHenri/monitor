@@ -1,5 +1,5 @@
 import { Box, Heading, Spinner, Text } from "@chakra-ui/react";
-import { useCurrentServer } from "../../hooks/Server";
+import { useCurrentServer } from "../../providers/Server/hooks";
 import { format_ratio_2_per } from "../../utils/functions";
 import { useCmdServer } from "../../providers/Server/hooks";
 

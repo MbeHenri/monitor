@@ -7,7 +7,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import { useCurrentServer } from "../../hooks/Server";
+import { useCurrentServer } from "../../providers/Server/hooks";
 import { useCmdServer } from "../../providers/Server/hooks";
 
 function DiskComponent() {

@@ -22,7 +22,7 @@ import logo_light from "../../assets/logo_light.svg";
 import bgimagedark from "../../assets/laptop-computer-dark.jpg";
 import bgimagelight from "../../assets/laptop-computer-light.jpg";
 import ThemeButton from "../../components/ThemeButton";
-import { useAuth } from "../../hooks/Auth";
+import { useAuth } from "../../providers/Auth/hooks";
 import { Navigate } from "react-router-dom";
 
 function Login() {

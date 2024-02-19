@@ -15,11 +15,11 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useServer } from "../../hooks/Server";
+import { useServer } from "../../providers/Server/hooks";
 import empty_server_img from "../../assets/empty_server.png";
 import { AddIcon } from "@chakra-ui/icons";
 import { format_ratio_2_per } from "../../utils/functions";
-import { AddServerForm } from "../../components/AddServerForm";
+import { AddServerForm } from "../../components/Forms/AddServerForm";
 import { useRef } from "react";
 
 function DefaultHome() {

@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../hooks/Auth";
+import { useAuth } from "../../providers/Auth/hooks";
 
 const PrivateComponent = ({ children, is_component = false }) => {
   const { user } = useAuth();

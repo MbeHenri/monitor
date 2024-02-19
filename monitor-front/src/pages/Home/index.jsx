@@ -1,6 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import DefaultHome from "./default";
-import { useCurrentServer } from "../../hooks/Server";
+import { useCurrentServer } from "../../providers/Server/hooks";
 import ServerHome from "./Server/detail";
 
 function Home() {

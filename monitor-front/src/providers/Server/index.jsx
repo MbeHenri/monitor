@@ -10,9 +10,13 @@ import { useAuth } from "../Auth/hooks";
 import { serverWebAPIUrl } from "../../apis/Server/path";
 import { delay } from "../../utils/functions";
 import { useSetting } from "../Setting/hooks";
+import { useToast } from "@chakra-ui/react";
 
 export const ServerContext = createContext();
 const ServerProvider = ({ children }) => {
+  // element d'aide de notifictions
+  const toast = useToast();
+
   /* Recupération des données utiles importantes */
 
   // Recupération de l'utilisateur
@@ -64,75 +68,56 @@ const ServerProvider = ({ children }) => {
   const [fluxAccesServer, setFluxAccesServer] = useState(null);
   // variable d'accéssibilité des serveurs
   const [isAccesibleServers, setIsAccesibleServers] = useState({});
-  // variable du message reçu en tete du flux
-  const [headMsgInFluxAccess, setHeadMsgInFluxAccess] = useState(null);
 
   // Lancement du flux d'accéssibilité des serveurs
+
+  // méthode permettant de gérer le flux
+  const handleAccessServer = useCallback(() => {
+    if (fluxAccesServer) {
+      // lors de l'ouverture du flux
+      fluxAccesServer.onopen = () => {
+        if (!isLoading) {
+          servers.forEach((server) =>
+            fluxAccesServer.send(JSON.stringify({ server_id: server.id }))
+          );
+        }
+      };
+
+      // redefinition de la fonction de reception de message
+      fluxAccesServer.onmessage = (e) => {
+        const { id, value, error } = JSON.parse(e.data);
+        if (!error) {
+          const newdict = { ...isAccesibleServers };
+          newdict[id] = value;
+          //console.log(JSON.parse(e.data));
+          setIsAccesibleServers(newdict);
+          delay(delayAccess).then(() =>
+            fluxAccesServer.send(JSON.stringify({ server_id: id }))
+          );
+        }
+      };
+    }
+  }, [delayAccess, fluxAccesServer, isAccesibleServers, isLoading, servers]);
+
   useEffect(() => {
+    var flux = null;
     if (user) {
-      if (!fluxAccesServer) {
-        var flux = new WebSocket(
-          `${serverWebAPIUrl}/servers/accessible/${user.token}`
+      try {
+        flux = new WebSocket(
+          `${serverWebAPIUrl}/servers/accessible/${user.token}/`
         );
-        // a l'ouverture du flux, on met à jour notre variable de flux
-        flux.onopen = () => setFluxAccesServer(flux);
-        flux.onmessage = (e) => setHeadMsgInFluxAccess(JSON.parse(e.data));
-
-        flux.onclose = () => setFluxAccesServer(null);
-        flux.onerror = (e) => console.log(e);
+        setFluxAccesServer(flux);
+      } catch (error) {
+        console.log(error);
       }
     }
+  }, [isLoading, user]);
 
-    return () => {
-      if (fluxAccesServer) {
-        fluxAccesServer.close();
-      }
-    };
-  }, [fluxAccesServer, user]);
-
-  // Lancement des premiers test d'accessibilité des serveurs apès leur chargement
-  const [alreadyRunFirstPing, setAlreadyRunFirstPing] = useState(false);
   useEffect(() => {
-    if (user) {
-      if (!isLoading) {
-        if (fluxAccesServer) {
-          if (!alreadyRunFirstPing) {
-            console.log("--->   send First pings");
-            servers.forEach((server) =>
-              fluxAccesServer.send(JSON.stringify({ server_id: server.id }))
-            );
-            setAlreadyRunFirstPing(true);
-          }
-        }
-      }
+    if (fluxAccesServer) {
+      handleAccessServer();
     }
-    return () => {};
-  }, [alreadyRunFirstPing, fluxAccesServer, isLoading, servers, user]);
-
-  // Gestion du bouclage utilisant le flux d'accéssibilté des serveurs
-  useEffect(() => {
-    const handle = async () => {
-      if (user) {
-        if (headMsgInFluxAccess) {
-          const { id, value, error } = headMsgInFluxAccess;
-          if (!error) {
-            // console.log(headMsgInFluxAccess);
-            const newdict = { ...isAccesibleServers };
-            newdict[id] = value;
-            setIsAccesibleServers(newdict);
-            if (fluxAccesServer) {
-              delay(delayAccess).then(() =>
-                fluxAccesServer.send(JSON.stringify({ server_id: id }))
-              );
-            }
-          }
-        }
-      }
-    };
-    handle();
-    return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fluxAccesServer, headMsgInFluxAccess]);
+  }, [fluxAccesServer, handleAccessServer]);
 
   // methode d'ajout et de suppresion de serveurs
   const addServer = useCallback(
@@ -232,7 +217,7 @@ const ServerProvider = ({ children }) => {
           // `${serverWebAPIUrl}/servers/accessible/${user.token}`
           const { login, password } = formdata;
           var flux = new WebSocket(
-            `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}`
+            `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}/`
           );
           const connected = { ...isConnecting };
           connected[idServer] = true;
@@ -241,6 +226,13 @@ const ServerProvider = ({ children }) => {
           flux.onopen = () => {
             // on ajoute le serveur dans l'ensemble des serveurs
             setSession(idServer, flux);
+
+            toast({
+              title: `serveur ${servers[idServer].hostname} connecté`,
+              status: "success",
+              isClosable: true,
+              position: "top",
+            });
             // on envoie tous les types de commandes au serveur
             COMMANDS.forEach(async (cmd_type) => {
               flux.send(JSON.stringify({ cmd_type: cmd_type }));
@@ -250,8 +242,22 @@ const ServerProvider = ({ children }) => {
             // rediriger les entrées
             handleCommandServer(idServer, JSON.parse(e.data));
           };
-          flux.onclose = () => clearSession(idServer);
-          flux.onerror = (e) => console.log(e);
+          flux.onclose = () => {
+            clearSession(idServer);
+            toast({
+              title: `serveur ${servers[idServer].hostname} déconnecté`,
+              status: "info",
+              isClosable: true,
+              position: "top",
+            });
+          };
+          flux.onerror = () =>
+            toast({
+              title: `la connection au serveur ${servers[idServer].hostname} a échoué`,
+              status: "info",
+              isClosable: true,
+              position: "top",
+            });
         }
       }
     },
@@ -260,8 +266,10 @@ const ServerProvider = ({ children }) => {
       clearSession,
       handleCommandServer,
       isConnecting,
+      servers,
       sessions,
       setSession,
+      toast,
       user,
     ]
   );

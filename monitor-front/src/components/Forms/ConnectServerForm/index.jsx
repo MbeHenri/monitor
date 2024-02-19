@@ -15,7 +15,7 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useServer } from "../../hooks/Server";
+import { useServer } from "../../../providers/Server/hooks";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 export function ConnectServerForm({
@@ -34,11 +34,13 @@ export function ConnectServerForm({
   // state for handle password field
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
-  const [errorConnect, setErrorConnect] = useState(false);
+  const [errorLogin, setErrorLogin] = useState(false);
+  const [errorPassword, setErrorPassword] = useState(false);
 
   const clear = () => {
     setIsSubmitting(false);
-    errorConnect && setErrorConnect(false);
+    errorLogin && setErrorLogin(false);
+    errorPassword && setErrorPassword(false);
     setLogin("");
     setPassword("");
   };
@@ -50,11 +52,12 @@ export function ConnectServerForm({
 
   const handleChangeLogin = (event) => {
     setLogin(event.target.value);
-    errorConnect && setErrorConnect(false);
+    errorLogin && setErrorLogin(false);
   };
 
   const handleChangePassword = (event) => {
     setPassword(event.target.value);
+    errorPassword && setErrorPassword(false);
   };
 
   // state for submitting authenticate form
@@ -65,8 +68,9 @@ export function ConnectServerForm({
     if (event.key && event.key !== "Enter") {
       return;
     }
-    if (login === "") {
-      setErrorConnect(true);
+    if (login === "" || password === "") {
+      login === "" && setErrorLogin(true);
+      password === "" && setErrorPassword(true);
     } else {
       setIsSubmitting(true);
       connexionServer(idServer, { login: login, password: password }).finally(
@@ -94,7 +98,7 @@ export function ConnectServerForm({
             <FormControl isRequired>
               <FormLabel>Login</FormLabel>
               <Input
-                isInvalid={errorConnect}
+                isInvalid={errorLogin}
                 placeholder="Login"
                 onKeyDown={handleSubmit}
                 onChange={handleChangeLogin}
@@ -102,10 +106,11 @@ export function ConnectServerForm({
               />
             </FormControl>
 
-            <FormControl mt={4}>
+            <FormControl mt={4} isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup size="md">
                 <Input
+                  isInvalid={errorPassword}
                   type={show ? "text" : "password"}
                   placeholder="Enter password"
                   onChange={handleChangePassword}

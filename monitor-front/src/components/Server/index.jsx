@@ -1,5 +1,5 @@
 import { Button, Link, Tooltip } from "@chakra-ui/react";
-import { useCurrentServer, useIsAccessibleServer } from "../../hooks/Server";
+import { useCurrentServer, useIsAccessibleServer } from "../../providers/Server/hooks";
 import { StateBadge } from "../../utils/Atoms";
 
 function ServerComponent({ data, closeNav }) {
@@ -34,7 +34,7 @@ function ServerComponent({ data, closeNav }) {
   );
 }
 
-export function AccessibleBadge({ isAccessible = true, size = "1rem" }) {
+export function AccessibleBadge({ isAccessible, size = "1rem" }) {
   return (
     <>
       <StateBadge state={isAccessible ? "good" : "bad"} size={size} />

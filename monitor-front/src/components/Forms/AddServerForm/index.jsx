@@ -13,7 +13,7 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
-import { useServer } from "../../hooks/Server";
+import { useServer } from "../../../providers/Server/hooks";
 
 export function AddServerForm({ initialRef, finalRef, isOpen, onClose }) {
   const { addServer } = useServer();

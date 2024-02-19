@@ -4,7 +4,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
-import { AddServerForm } from "../AddServerForm";
+import { AddServerForm } from "../Forms/AddServerForm";
 
 export function AddIconServer() {
   const { isOpen, onOpen, onClose } = useDisclosure();

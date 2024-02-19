@@ -33,15 +33,15 @@ import PrivateComponent from "../PrivateComponent";
 import { AddIconServer } from "../AddIconServer";
 import Server from "../Server";
 
-import { useAuth } from "../../hooks/Auth";
-import { useCurrentServer, useServer } from "../../hooks/Server";
+import { useAuth } from "../../providers/Auth/hooks";
+import { useCurrentServer, useServer } from "../../providers/Server/hooks";
 
 function Header() {
   const { colorMode } = useColorMode();
   const { logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { servers, isLoading, error } = useServer();
+  const { servers, isLoading, error, deconnexionServers } = useServer();
   const { clearCurrentServer } = useCurrentServer();
 
   return (
@@ -180,7 +180,11 @@ function Header() {
                 <Button
                   leftIcon={<LockIcon />}
                   colorScheme="red"
-                  onClick={logout}
+                  onClick={() =>
+                    deconnexionServers().then((ok) => {
+                      return ok && logout();
+                    })
+                  }
                 >
                   SignOut
                 </Button>
@@ -192,4 +196,5 @@ function Header() {
     </>
   );
 }
+
 export default Header;

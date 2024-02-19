@@ -1,5 +1,5 @@
 import { HStack, Spinner, Stat, StatLabel, StatNumber } from "@chakra-ui/react";
-import { useCurrentServer } from "../../hooks/Server";
+import { useCurrentServer } from "../../providers/Server/hooks";
 import { useCmdServer } from "../../providers/Server/hooks";
 
 export function UptimeComponent() {

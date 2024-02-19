@@ -20,7 +20,7 @@ import {
   useCurrentServer,
   useIsAccessibleServer,
   useServer,
-} from "../../../hooks/Server";
+} from "../../../providers/Server/hooks";
 import { AccessibleBadge } from "../../../components/Server";
 import UptimeComponent from "../../../components/Server/uptime";
 import MemoryComponent from "../../../components/Server/memory";
@@ -67,7 +67,11 @@ function ServerHome() {
             <Heading color="primary">{currentServer.hostname}</Heading>
             <AccessibleBadge isAccessible={isAccessible} size="1.5rem" />
           </HStack>
-          <Text>{currentServer.friendlyname}</Text>
+          {currentServer.friendlyname ? (
+            <Text> {currentServer.friendlyname} </Text>
+          ) : (
+            <></>
+          )}
         </Box>
         <HStack>
           {inSession ? (
