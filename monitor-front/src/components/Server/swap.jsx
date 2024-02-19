@@ -11,8 +11,11 @@ function SwapComponent() {
   return (
     <Box>
       <Heading size="sm">Swap</Heading>
-      {swap ? <Text>swap.size</Text> : <Spinner />}
-      {swap ? <Text>`${format_ratio_2_per(swap.used)}%`</Text> : <></>}
+      {swap ? (
+        <Text>{`${swap.size} (${format_ratio_2_per(swap.used)}%)`}</Text>
+      ) : (
+        <Spinner />
+      )}
     </Box>
   );
 }

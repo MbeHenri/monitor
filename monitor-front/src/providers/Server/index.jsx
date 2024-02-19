@@ -205,8 +205,6 @@ const ServerProvider = ({ children }) => {
     sessions.forEach(async (session, id) => {
       // on envoie tous les types de commandes au serveur
       session.onopen = () => {
-        console.log("ok");
-
         //setIsConneting(isConnecting.set(id));
         setIsConnecting(copyMap(isInConnection).set(id, true));
         setIsInConnection(copyMap(isInConnection).set(id, true));
@@ -230,7 +228,7 @@ const ServerProvider = ({ children }) => {
           setDataSessionServers(
             aux.set(cmd_type, aux.get(id).set(cmd_type, data))
           );
-          console.log(cmd_type);
+          //console.log(cmd_type);
           delay(delayServer[cmd_type]).then(() =>
             session.send(JSON.stringify({ cmd_type: cmd_type }))
           );
@@ -254,6 +252,7 @@ const ServerProvider = ({ children }) => {
           );
 
           flux.onclose = () => {
+            setIsInConnection(copyMap(isInConnection).set(idServer, false));
             clearSession(idServer);
             toast({
               title: `serveur déconnecté`,
@@ -262,13 +261,16 @@ const ServerProvider = ({ children }) => {
               position: "top",
             });
           };
-          flux.onerror = () =>
+          flux.onerror = () => {
+            setIsInConnection(copyMap(isInConnection).set(idServer, false));
+            clearSession(idServer);
             toast({
               title: `la connection au serveur a échoué`,
               status: "info",
               isClosable: true,
               position: "top",
             });
+          };
 
           setSession(idServer, flux);
         }

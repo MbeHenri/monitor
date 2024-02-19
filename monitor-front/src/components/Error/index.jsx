@@ -1,17 +1,27 @@
 import { Container, Image, Heading, VStack } from "@chakra-ui/react";
-import error_404 from "../../assets/undraw_page_not_found.svg";
+import error_404 from "../../assets/page-not-found.png";
+import error_disconnect from "../../assets/disconnected.png";
 
 function Error({ error = null }) {
-  var message = "Il semblerait qu’il y ait un problème";
+  var message = "Page existante";
+  var image = error_404;
   if (error) {
-    message = JSON.stringify(error);
+    switch (error.type) {
+      case "any":
+        message = "Impossible de se connecter à Monitor !!";
+        image = error_disconnect;
+        break;
+
+      default:
+        message = JSON.stringify(error);
+        break;
+    }
   }
 
   return (
     <Container mt="container.lg">
-      <VStack mt="20vh">
-        <Heading textAlign="center"> Oups ... </Heading>
-        <Image src={error_404} width="100%" />
+      <VStack mt="15vh">
+        <Image src={image} width="100%" />
         <Heading textAlign="center">{message}</Heading>
       </VStack>
     </Container>

@@ -13,7 +13,8 @@ import { useCmdServer, useCurrentServer } from "../../providers/Server/hooks";
 
 function CpuComponent() {
   const { currentServer } = useCurrentServer();
-  const { cpus } = useCmdServer(currentServer.id, "cpu");
+  const { data } = useCmdServer(currentServer.id, "cpu");
+  const cpus = data;
 
   return (
     <Stack>
@@ -21,11 +22,11 @@ function CpuComponent() {
         <StatLabel color="secondary">total</StatLabel>
         {cpus ? <StatNumber>{cpus.length}</StatNumber> : <Spinner />}
       </Stat>
-      <Grid>
+      <Grid templateColumns='repeat(4, 1fr)' gap='5'>
         {cpus ? (
           cpus.map((cpu, id) => (
             <GridItem key={`cpu-${id}`}>
-              <Text>{cpu.num}</Text>
+              <Text>{`CPU ${cpu.num}`}</Text>
               <Progress value={cpu.used} />
             </GridItem>
           ))

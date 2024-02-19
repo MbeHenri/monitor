@@ -62,7 +62,7 @@ function Header() {
   return (
     <>
       {/* vue principale de l'header */}
-      <Box pt={2} pb={2}>
+      <Box pt={2} pb={2} pos="sticky" top="0" right="0" zIndex="10" bgColor="header">
         <Container maxW="container.lg">
           <Hide above="md">
             <Flex justify="space-between" align="center">

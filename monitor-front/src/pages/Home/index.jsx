@@ -18,7 +18,15 @@ function Home() {
             gap="4"
           >
             <Show above="md">
-              <GridItem pl="2" area={"nav"}>
+              <GridItem
+                pl="2"
+                area={"nav"}
+                pos="sticky"
+                top="0"
+                width="280px"
+                height="calc(100vh - 8.125rem)"
+                overflowY="auto"
+              >
                 <Nav />
               </GridItem>
             </Show>

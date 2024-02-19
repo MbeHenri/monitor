@@ -11,16 +11,14 @@ export function UptimeComponent() {
     <HStack align="start">
       {/* <Text>{uptime && JSON.stringify(uptime)}</Text> */}
       <Stat>
-        <StatLabel color="secondary">dates</StatLabel>
-        {uptime ? <StatNumber>`${uptime.days}` </StatNumber> : <Spinner />}
+        <StatLabel color="secondary">days</StatLabel>
+        {uptime ? <StatNumber>{`${uptime.days}`} </StatNumber> : <Spinner />}
       </Stat>
       <Stat>
         <StatLabel color="secondary">hours</StatLabel>
 
         {uptime ? (
-          <StatNumber>
-            `${uptime.hours}:${uptime.minutes}`
-          </StatNumber>
+          <StatNumber>{`${uptime.hours}:${uptime.minutes}`}</StatNumber>
         ) : (
           <Spinner />
         )}

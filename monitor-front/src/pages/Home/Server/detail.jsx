@@ -33,8 +33,8 @@ import DiskComponent from "../../../components/Server/disk";
 import { useSessionServer } from "../../../providers/Server/hooks";
 
 function ServerHome() {
-  const { deleteServer } = useServer();
-  const { currentServer, deconnexionServer } = useCurrentServer();
+  const { deleteServer, deconnexionServer } = useServer();
+  const { currentServer } = useCurrentServer();
   const { isAccessible } = useIsAccessibleServer(currentServer.id);
   const { inSession, isConnecting } = useSessionServer(currentServer.id);
 

@@ -15,6 +15,7 @@ export const theme = extendTheme(
     colors: {
       primary: { 200: "#88A6E9", 700: "#265dd6", 900: "#132974" },
       secondary: { 200: "#f3da83", 700: "#DBB447", 900: "#D0A632" },
+      header: { 200: "#283143", 700: "#313C53", 900: "#E0E7F4" },
     },
     fonts: {
       heading: 'Monaco, "Courier New" ,"Trebuchet MS", Helvetica, sans-serif',
@@ -30,6 +31,10 @@ export const theme = extendTheme(
         primary: {
           default: "primary.900",
           _dark: "primary.200",
+        },
+        header: {
+          default: "header.900",
+          _dark: "header.200",
         },
         onprimary: {
           default: "gray.50",
@@ -60,6 +65,6 @@ export const theme = extendTheme(
         },
       },
     },
-  },
+  }
   // withDefaultColorScheme({ colorScheme: "blue" })
 );
