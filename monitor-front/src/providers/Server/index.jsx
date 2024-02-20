@@ -244,6 +244,7 @@ const ServerProvider = ({ children }) => {
           flux.onclose = (e) => {
             console.log(e);
             setIsInConnection(copyMap(isInConnection).set(idServer, false));
+            setIsConnecting(copyMap(isConnecting).set(idServer, false));
             setSessions(copyMap(sessions).set(idServer, null));
           };
           flux.onerror = () => {
