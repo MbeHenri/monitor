@@ -143,7 +143,7 @@ function Login() {
               bgPosition="center"
               w="55%"
               h="100vh"
-              borderBottomLeftRadius="10rem"
+              borderBottomLeftRadius="2.5rem"
             />
           </Show>
           <Box position="absolute" right="0" top="0" margin="2rem">

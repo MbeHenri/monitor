@@ -34,7 +34,10 @@ function Services() {
       <>
         {services ? (
           services.length > 0 ? (
-            <Grid gap="3" templateColumns="repeat(4, 1fr)">
+            <Grid
+              gap="3"
+              templateColumns={{ base: "repeat(2, 1fr)", sm:"repeat(3, 1fr)", lg: "repeat(4, 1fr)" }}
+            >
               {services
                 .filter((service) => {
                   //console.log(service.name.includes(nameFilter));

@@ -29,7 +29,7 @@ function ServiceComponent({ data }) {
         {data.name.length > 7 ? data.name.substring(0, 6) + "..." : data.name}
       </Button>
       <Portal>
-        <Modal onClose={onClose} isOpen={isOpen} isCentered>
+        <Modal onClose={onClose} isOpen={isOpen} isCentered size="xs">
           <ModalOverlay />
           <ModalContent>
             <ModalBody>

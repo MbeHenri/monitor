@@ -80,9 +80,8 @@ function ServerHome() {
             </Button>
           ) : (
             <>
-              <Button onClick={onOpen}>Connecter</Button>
+              <Button isLoading={isConnecting} loadingText={"Connectting"} onClick={onOpen}>Connecter</Button>
               <ConnectServerForm
-                isAccessible={isConnecting}
                 idServer={currentServer.id}
                 finalRef={finalRef}
                 initialRef={initialRef}

@@ -24,17 +24,18 @@ function DefaultHome() {
 }
 
 function BodyHome() {
-  const { isLoading, servers, isAccesibleServers, sessions } = useServer();
+  const { isLoading, servers, isAccesibleServers, isInConnection } =
+    useServer();
 
   const perAccesible = percentageAccessible(servers, isAccesibleServers);
-  const perSession = percentageInSession(servers, sessions);
+  const perSession = percentageInSession(servers, isInConnection);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
 
   return (
-    <Stack gap={4}>
+    <Stack gap={4} mt="1.5rem">
       <Heading color="primary">Dashboard</Heading>
       {isLoading ? (
         <StatsBody
@@ -121,9 +122,10 @@ function percentageAccessible(servers, isAccesibleServers) {
   return format_ratio_2_per(per);
 }
 
-function percentageInSession(servers, sessions) {
+function percentageInSession(servers, isInConnection) {
   const per =
-    servers.filter((server) => sessions.has(server.id).length / servers.length);
+    servers.filter((server) => isInConnection.get(server.id)).length /
+    servers.length;
   return format_ratio_2_per(per);
 }
 

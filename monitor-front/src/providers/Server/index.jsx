@@ -50,14 +50,13 @@ const ServerProvider = ({ children }) => {
                   };
                 })
               );
+              setError(false);
             } else {
               error === "auth" && logout();
               setError({ type: error });
             }
           })
           .finally(() => setIsLoading(false));
-      } else {
-        setError({ type: "auth" });
       }
     };
     loadServers();
@@ -182,7 +181,7 @@ const ServerProvider = ({ children }) => {
           if (user) {
             //setIsConneting(isConnecting.set(id));
             !isConnecting.get(id) &&
-              setIsConnecting(copyMap(isConnecting).set(id, true));
+              setIsConnecting(copyMap(isConnecting).set(id, false));
             !isInConnection.get(id) &&
               setIsInConnection(copyMap(isInConnection).set(id, true));
 
@@ -246,24 +245,19 @@ const ServerProvider = ({ children }) => {
             console.log(e);
             setIsInConnection(copyMap(isInConnection).set(idServer, false));
             setSessions(copyMap(sessions).set(idServer, null));
-            toast({
-              title: `serveur déconnecté`,
-              status: "info",
-              isClosable: true,
-              position: "top",
-            });
           };
           flux.onerror = () => {
             setIsInConnection(copyMap(isInConnection).set(idServer, false));
+            setIsConnecting(copyMap(isConnecting).set(idServer, false));
             setSessions(copyMap(sessions).set(idServer, null));
             toast({
-              title: `la connection au serveur a échoué`,
+              title: `Impossible de se connecter`,
               status: "info",
               isClosable: true,
               position: "top",
             });
           };
-          setIsConnecting(copyMap(isConnecting).set(idServer, false));
+          setIsConnecting(copyMap(isConnecting).set(idServer, true));
           setSessions(copyMap(sessions).set(idServer, flux));
         }
       }
