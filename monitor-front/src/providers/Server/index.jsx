@@ -66,7 +66,7 @@ const ServerProvider = ({ children }) => {
   /* Gestion du flux de vérification de l'accessiblité des serveurs */
 
   // variable du websocket du flux
-  const [fluxAccesServer, setFluxAccesServer] = useState(null);
+  const [fluxAccesServer, setFluxAccesServer] = useState(new Map());
   // variable d'accéssibilité des serveurs
   const [isAccesibleServers, setIsAccesibleServers] = useState(new Map());
 
@@ -74,60 +74,57 @@ const ServerProvider = ({ children }) => {
 
   // méthode permettant de gérer le flux
   const handleAccessServer = useCallback(() => {
-    if (fluxAccesServer) {
-      // lors de l'ouverture du flux
-      fluxAccesServer.onopen = () => {
-        if (user && !isLoading) {
-          servers.forEach((server) =>
-            fluxAccesServer.send(JSON.stringify({ server_id: server.id }))
-          );
-        }
-      };
-
-      // redefinition de la fonction de reception de message
-      fluxAccesServer.onmessage = (e) => {
-        if (user) {
-          const { id, value, error } = JSON.parse(e.data);
-          if (!error) {
-            const aux = new Map();
-            isAccesibleServers.forEach((ok, id) => aux.set(id, ok));
-            setIsAccesibleServers(aux.set(id, value));
-            delay(delayAccess).then(() =>
-              fluxAccesServer.send(JSON.stringify({ server_id: id }))
-            );
+    fluxAccesServer.forEach(async (flux, id) => {
+      if (flux) {
+        // lors de l'ouverture du flux
+        flux.onopen = () => {
+          if (user && !isLoading) {
+            flux.send(JSON.stringify({}));
           }
-        }
-      };
-    }
-  }, [
-    delayAccess,
-    fluxAccesServer,
-    isAccesibleServers,
-    isLoading,
-    servers,
-    user,
-  ]);
+        };
+
+        // redefinition de la fonction de reception de message
+        flux.onmessage = (e) => {
+          if (user) {
+            const { value, error } = JSON.parse(e.data);
+            if (!error) {
+              setIsAccesibleServers(copyMap(isAccesibleServers).set(id, value));
+              delay(delayAccess).then(() => flux.send(JSON.stringify({})));
+            }
+          }
+        };
+      }
+    });
+  }, [delayAccess, fluxAccesServer, isAccesibleServers, isLoading, user]);
+
+  const addNewFlux = useCallback(
+    (idServer) => {
+      if (user && !fluxAccesServer.get(idServer)) {
+        const flux = new WebSocket(
+          `${serverWebAPIUrl}/servers/v2/accessible/${user.token}/${idServer}/`
+        );
+        flux.onerror = () => {
+          setFluxAccesServer(copyMap(fluxAccesServer).set(idServer, null));
+        };
+        flux.onclose = (e) => {
+          setFluxAccesServer(copyMap(fluxAccesServer).set(idServer, null));
+        };
+        setFluxAccesServer(copyMap(fluxAccesServer).set(idServer, flux));
+      }
+    },
+    [fluxAccesServer, user]
+  );
 
   useEffect(() => {
-    var flux = null;
     if (user) {
-      try {
-        flux = new WebSocket(
-          `${serverWebAPIUrl}/servers/accessible/${user.token}/`
-        );
-        flux.onerror = () => {};
-        flux.onclose = () => {};
-        setFluxAccesServer(flux);
-      } catch (error) {
-        console.log(error);
+      if (!isLoading) {
+        servers.forEach((server) => addNewFlux(server.id));
       }
     }
-  }, [isLoading, user]);
+  }, [addNewFlux, isLoading, servers, user]);
 
   useEffect(() => {
-    if (fluxAccesServer) {
-      handleAccessServer();
-    }
+    handleAccessServer();
   }, [fluxAccesServer, handleAccessServer]);
 
   // methode d'ajout d'un serveur
@@ -146,10 +143,8 @@ const ServerProvider = ({ children }) => {
                 hostname: hostname,
               },
             ]);
-            if (fluxAccesServer) {
-              const body = { server_id: id };
-              fluxAccesServer.send(JSON.stringify(body));
-            }
+
+            addNewFlux(id);
             return false;
           } else {
             return { type: error };
@@ -159,35 +154,13 @@ const ServerProvider = ({ children }) => {
         return { type: "auth" };
       }
     },
-    [fluxAccesServer, servers, user]
+    [addNewFlux, servers, user]
   );
 
   /* Gestion du flux des sessions de serveurs */
 
   // variable de l'ensemble des sessions
   const [sessions, setSessions] = useState(new Map());
-  const setSession = useCallback(
-    (idServer, flux) => {
-      setSessions(copyMap(sessions).set(idServer, flux));
-    },
-    [sessions]
-  );
-
-  const clearSession = useCallback(
-    (idServer) => {
-      const aux = new Map();
-      sessions.forEach(
-        (session, id) => id !== idServer && aux.set(id, session)
-      );
-      setSessions(aux);
-    },
-    [sessions]
-  );
-
-  const clearSessions = useCallback(() => {
-    sessions.forEach((session) => session && session.close());
-    setSessions([]);
-  }, [sessions]);
 
   // variable de l'ensemble des données issus des serveurs
   const [dataSessionServers, setDataSessionServers] = useState(new Map());
@@ -204,38 +177,56 @@ const ServerProvider = ({ children }) => {
   const handleCommandServer = useCallback(() => {
     sessions.forEach(async (session, id) => {
       // on envoie tous les types de commandes au serveur
-      session.onopen = () => {
-        //setIsConneting(isConnecting.set(id));
-        setIsConnecting(copyMap(isInConnection).set(id, true));
-        setIsInConnection(copyMap(isInConnection).set(id, true));
+      if (session) {
+        session.onopen = () => {
+          if (user) {
+            //setIsConneting(isConnecting.set(id));
+            !isConnecting.get(id) &&
+              setIsConnecting(copyMap(isConnecting).set(id, true));
+            !isInConnection.get(id) &&
+              setIsInConnection(copyMap(isInConnection).set(id, true));
 
-        COMMANDS.forEach(async (cmd_type) => {
-          session.send(JSON.stringify({ cmd_type: cmd_type }));
-        });
-      };
+            COMMANDS.forEach(async (cmd_type) => {
+              session.send(JSON.stringify({ cmd_type: cmd_type }));
+            });
+          }
+        };
 
-      // redéfinition des fonctions de gestion de flux
-      session.onmessage = (e) => {
-        const { cmd_type, data, error } = JSON.parse(e.data);
-        if (!error) {
-          // console.log(headMsgInFluxAccess);
+        // redéfinition des fonctions de gestion de flux
+        session.onmessage = (e) => {
+          if (user) {
+            const { cmd_type, data, error } = JSON.parse(e.data);
+            if (!error) {
+              // console.log(headMsgInFluxAccess);
 
-          // si on n'avait pas encore ajouter de données pour le serveur
-          // on ajoute son dictionnaire de données
-          const aux = copyMap(dataSessionServers);
+              // si on n'avait pas encore ajouter de données pour le serveur
+              // on ajoute son dictionnaire de données
+              const aux = copyMap(dataSessionServers);
+              !aux.get(id) && aux.set(id, new Map());
+              setDataSessionServers(
+                aux.set(cmd_type, aux.get(id).set(cmd_type, data))
+              );
 
-          !aux.has(id) && aux.set(id, new Map());
-          setDataSessionServers(
-            aux.set(cmd_type, aux.get(id).set(cmd_type, data))
-          );
-          //console.log(cmd_type);
-          delay(delayServer[cmd_type]).then(() =>
-            session.send(JSON.stringify({ cmd_type: cmd_type }))
-          );
-        }
-      };
+              //console.log(cmd_type);
+              delay(delayServer[cmd_type]).then(() =>
+                session.send(JSON.stringify({ cmd_type: cmd_type }))
+              );
+            } else {
+              console.log(error);
+            }
+          }
+        };
+      }
     });
-  }, [COMMANDS, dataSessionServers, delayServer, isInConnection, sessions]);
+  }, [
+    COMMANDS,
+    dataSessionServers,
+    delayServer,
+    isConnecting,
+    isInConnection,
+    sessions,
+    user,
+  ]);
 
   useEffect(() => {
     handleCommandServer();
@@ -244,16 +235,17 @@ const ServerProvider = ({ children }) => {
   const connexionServer = useCallback(
     async (idServer, formdata) => {
       if (user) {
-        if (!sessions.has(idServer)) {
+        if (!sessions.get(idServer)) {
           // `${serverWebAPIUrl}/servers/accessible/${user.token}`
           const { login, password } = formdata;
           var flux = new WebSocket(
             `${serverWebAPIUrl}/servers/session/${user.token}/${idServer}/${login}/${password}/`
           );
 
-          flux.onclose = () => {
+          flux.onclose = (e) => {
+            console.log(e);
             setIsInConnection(copyMap(isInConnection).set(idServer, false));
-            clearSession(idServer);
+            setSessions(copyMap(sessions).set(idServer, null));
             toast({
               title: `serveur déconnecté`,
               status: "info",
@@ -263,7 +255,7 @@ const ServerProvider = ({ children }) => {
           };
           flux.onerror = () => {
             setIsInConnection(copyMap(isInConnection).set(idServer, false));
-            clearSession(idServer);
+            setSessions(copyMap(sessions).set(idServer, null));
             toast({
               title: `la connection au serveur a échoué`,
               status: "info",
@@ -271,41 +263,26 @@ const ServerProvider = ({ children }) => {
               position: "top",
             });
           };
-
-          setSession(idServer, flux);
+          setIsConnecting(copyMap(isConnecting).set(idServer, false));
+          setSessions(copyMap(sessions).set(idServer, flux));
         }
       }
     },
-    [clearSession, sessions, setSession, toast, user]
+    [isConnecting, isInConnection, sessions, toast, user]
   );
 
   // méthode de déconnexion d'un serveur
   const deconnexionServer = useCallback(
-    async (idServer) => {
-      if (user) {
-        if (sessions.has(idServer)) {
-          sessions.get(idServer).close();
-          clearSession(idServer);
-        } else {
-        }
-        return true;
-      } else {
-        return false;
-      }
-    },
-    [clearSession, sessions, user]
+    async (idServer) =>
+      user && sessions.get(idServer) && sessions.get(idServer).close(),
+    [sessions, user]
   );
 
   // méthode pour deconnecter tous les serveurs
-  const deconnexionServers = useCallback(async () => {
-    if (user) {
-      // on libère les connexions des serveurs sur lesquels on était connecter
-      clearSessions();
-      return true;
-    } else {
-      return false;
-    }
-  }, [clearSessions, user]);
+  const deconnexionServers = useCallback(
+    async () => sessions.forEach((session) => session && session.close()),
+    [sessions]
+  );
 
   // variable du serveur courant
   const [currentServer, setCurrentServer] = useState(null);
@@ -317,13 +294,17 @@ const ServerProvider = ({ children }) => {
         return await delete_server(user, idServer).then((res) => {
           const { error } = res;
           if (!error) {
+            // on arrete les test d'accéssibilité
+            fluxAccesServer.get(idServer) &&
+              fluxAccesServer.get(idServer).close();
+
             // on déconnecte le serveur s'il est connecté
             deconnexionServer(idServer);
 
             // on retire le serveur de l'ensemble des serveurs
             setServers(servers.filter((server) => server.id !== idServer));
 
-            // on vide le serveur courant si c'était lui
+            // on le retire le serveur courant s'il l'était
             currentServer &&
               currentServer.id === idServer &&
               setCurrentServer(null);
@@ -336,7 +317,7 @@ const ServerProvider = ({ children }) => {
         return { error: "auth" };
       }
     },
-    [currentServer, deconnexionServer, servers, user]
+    [currentServer, deconnexionServer, fluxAccesServer, servers, user]
   );
 
   // variable du service courant

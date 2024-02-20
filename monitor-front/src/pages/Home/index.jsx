@@ -22,8 +22,8 @@ function Home() {
                 pl="2"
                 area={"nav"}
                 pos="sticky"
-                top="0"
-                width="280px"
+                top="4rem"
+                width="100%"
                 height="calc(100vh - 8.125rem)"
                 overflowY="auto"
               >

@@ -14,7 +14,7 @@ export const theme = extendTheme(
     },
     colors: {
       primary: { 200: "#88A6E9", 700: "#265dd6", 900: "#132974" },
-      secondary: { 200: "#f3da83", 700: "#DBB447", 900: "#D0A632" },
+      secondary: { 200: "#f3da83", 700: "#DBB447", 900: "#866509" },
       header: { 200: "#283143", 700: "#313C53", 900: "#E0E7F4" },
     },
     fonts: {
@@ -56,7 +56,7 @@ export const theme = extendTheme(
         },
 
         bgheardercard: {
-          default: "gray.100",
+          default: "gray.300",
           _dark: "gray.900",
         },
         onbgheardercard: {

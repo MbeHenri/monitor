@@ -1,7 +1,8 @@
 
-const conn = new WebSocket('ws://127.0.0.1:8000/ws/servers/accessible/jhjh/');
+const conn = new WebSocket('ws://127.0.0.1:8000/ws/servers/session/1000/8/mbe/  /');
 
 conn.onopen = function (e) {
+    console.log("connection ok");
 };
 
 conn.onmessage = function (e) {
@@ -9,19 +10,14 @@ conn.onmessage = function (e) {
     message = document.createElement("div");
     message.innerHTML = e.data;
     document.getElementById("content").appendChild(message)
-    conn.send(`{"server_id":${1}}`)
-    
+
 };
 
 conn.onclose = function (e) {
     console.log(e);
 };
 
-timer = window.setInterval(() => {
-    
-}, 1000);
-
 document.getElementById("send_btn").addEventListener("click", (e) => {
-    conn.send(`{"server_id":${1}}`)
+    conn.send(JSON.stringify({ cmd_type: "uptime" }))
 })
 

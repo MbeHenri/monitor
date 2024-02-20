@@ -10,6 +10,7 @@ from pssh.clients import SSHClient
 status = {
     "CLOSE_NORMAL": 1000,
     "CLOSE_UNSUPPORTED": 3000,
+    "CLOSE_ERROR": 4000,
 }
 
 
@@ -21,6 +22,21 @@ class AccessibleServerConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, text_data=None, byte_data=None):
         server_id = text_data["server_id"]
         res = await self.getAccessible(server_id)
+        await self.send_json(res)
+
+    @database_sync_to_async
+    def getAccessible(self, server_id):
+        server = Server.objects.get(id=server_id)
+        return {"id": server_id, "value": accessible_server(server.hostname)}
+
+
+class AccessibleServerv2Consumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.server_id = self.scope["url_route"]["kwargs"]["server_id"]
+        await self.accept()
+
+    async def receive_json(self, text_data=None, byte_data=None):
+        res = await self.getAccessible(self.server_id)
         await self.send_json(res)
 
     @database_sync_to_async
@@ -43,6 +59,7 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
             self.client = SSHClient(hostname, user=login, password=password)
             await self.accept()
         except Exception:
+            print()
             await self.close(status["CLOSE_UNSUPPORTED"])
 
     async def disconnect(self, close_code):
@@ -83,8 +100,13 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
 
                 await self.send_json(res)
 
-            except Exception:
-                await self.close(status["CLOSE_UNSUPPORTED"])
+            except Exception as e:
+                res["error"] = {
+                    "type": "unknown",
+                    "detail": "Un problème est survenu lors de l'exécution de la commande",
+                    "object": str(e),
+                }
+                await self.send_json(res)
 
     async def handle_services(self, res):
         res["data"] = services(self.client)

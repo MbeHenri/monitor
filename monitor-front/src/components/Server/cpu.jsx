@@ -4,9 +4,6 @@ import {
   Progress,
   Spinner,
   Stack,
-  Stat,
-  StatLabel,
-  StatNumber,
   Text,
 } from "@chakra-ui/react";
 import { useCmdServer, useCurrentServer } from "../../providers/Server/hooks";
@@ -18,20 +15,16 @@ function CpuComponent() {
 
   return (
     <Stack>
-      <Stat>
-        <StatLabel color="secondary">total</StatLabel>
-        {cpus ? <StatNumber>{cpus.length}</StatNumber> : <Spinner />}
-      </Stat>
       <Grid templateColumns='repeat(4, 1fr)' gap='5'>
         {cpus ? (
           cpus.map((cpu, id) => (
-            <GridItem key={`cpu-${id}`}>
+            <GridItem key={`cpu-${id + 1}`}>
               <Text>{`CPU ${cpu.num}`}</Text>
               <Progress value={cpu.used} />
             </GridItem>
           ))
         ) : (
-          <></>
+          <Spinner/>
         )}
       </Grid>
     </Stack>

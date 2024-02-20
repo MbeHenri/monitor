@@ -38,12 +38,13 @@ def uptime(client: SSHClient):
     host_output = client.run_command(
         """ uptime -p | awk '{ print "\"$2\"#\"$4\"#\"$6\"" }' """,
     )
+
     for line in host_output.stdout:
         output = line.split("#")
         uptime = {
-            "days": int(output[0]),
-            "hours": int(output[1]),
-            "minutes": int(output[2]),
+            "days": int(float(output[0])),
+            "hours": int(float(output[1])),
+            "minutes": int(float(output[2])),
         }
     return uptime
 
