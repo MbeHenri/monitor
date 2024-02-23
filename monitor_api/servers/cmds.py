@@ -1,6 +1,7 @@
 import json
 from pssh.clients import SSHClient
 from subprocess import run, TimeoutExpired
+import datetime
 
 
 def accessible_server(hostname: str) -> bool:
@@ -36,15 +37,17 @@ def uptime(client: SSHClient):
     uptime = {}
     # commandes pour obtenir les pourcentages d'utilisation de la swap
     host_output = client.run_command(
-        """ uptime -p | awk '{ print "\"$2\"#\"$4\"#\"$6\"" }' """,
+        """ uptime -s """,
     )
 
     for line in host_output.stdout:
-        output = line.split("#")
+        uptime = datetime.datetime.today() - datetime.datetime.strptime(
+            line, "%Y-%m-%d %H:%M:%S"
+        )
         uptime = {
-            "days": int(float(output[0])),
-            "hours": int(float(output[1])),
-            "minutes": int(float(output[2])),
+            "days": uptime.days,
+            "hours": uptime.seconds // 3600,
+            "minutes": (uptime.seconds // 60) % 60,
         }
     return uptime
 
