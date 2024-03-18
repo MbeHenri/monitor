@@ -11,11 +11,16 @@ Django==5.0.2
 django-cors-headers==4.3.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
+drf-spectacular==0.27.1
+drf-spectacular-sidecar==2024.3.4
 gevent==23.9.1
 greenlet==3.0.3
 hyperlink==21.0.0
 idna==3.6
 incremental==22.10.0
+inflection==0.5.1
+jsonschema==4.21.1
+jsonschema-specifications==2023.12.1
 parallel-ssh==2.12.0
 pillow==10.2.0
 pyasn1==0.5.1
@@ -24,6 +29,9 @@ pycparser==2.21
 PyJWT==2.8.0
 pyOpenSSL==24.0.0
 pytz==2024.1
+PyYAML==6.0.1
+referencing==0.34.0
+rpds-py==0.18.0
 service-identity==24.1.0
 six==1.16.0
 sqlparse==0.4.4
@@ -32,5 +40,6 @@ ssh2-python==1.0.0
 Twisted==23.10.0
 txaio==23.1.1
 typing_extensions==4.9.0
+uritemplate==4.1.1
 zope.event==5.0
 zope.interface==6.1
