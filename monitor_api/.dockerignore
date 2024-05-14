@@ -1,0 +1,12 @@
+
+# !!!!!! back - api
+*env
+db.sqlite3
+
+__pycache__
+*/__pycache__
+
+README.md
+launch_docs.sh
+schema.yml
+Dockerfile

@@ -1,4 +1,4 @@
-import { serverAPIUrl } from "./path";
+import { serverAPIUrl } from "../path";
 
 export async function list_servers(user) {
   var myHeaders = new Headers();

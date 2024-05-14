@@ -25,3 +25,14 @@ python manage.py migrate
 ```bash
 python manage.py runserver
 ```
+
+## Commands to install on a server
+
+- systemctl
+- awk
+- uptime
+- swapon
+- free
+- grep
+- df
+- mpstat

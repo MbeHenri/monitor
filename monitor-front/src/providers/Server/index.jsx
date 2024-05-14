@@ -7,7 +7,7 @@ import {
 } from "react";
 import { add_server, delete_server, list_servers } from "../../apis/Server";
 import { useAuth } from "../Auth/hooks";
-import { serverWebAPIUrl } from "../../apis/Server/path";
+import { serverWebAPIUrl } from "../../apis/path";
 import { delay } from "../../utils/functions";
 import { useSetting } from "../Setting/hooks";
 import { useToast } from "@chakra-ui/react";
@@ -211,7 +211,7 @@ const ServerProvider = ({ children }) => {
                 session.send(JSON.stringify({ cmd_type: cmd_type }))
               );
             } else {
-              console.log(error);
+              console.log({ cmd_type, error });
             }
           }
         };

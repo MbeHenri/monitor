@@ -1,14 +1,17 @@
 import json
 from pssh.clients import SSHClient
-from subprocess import run, TimeoutExpired
+# from subprocess import run, TimeoutExpired
 import datetime
+from ping3 import ping
 
 
 def accessible_server(hostname: str) -> bool:
     try:
-        res = run(["ping", "-c", "1", "-w", "1", hostname])
-        return res.returncode == 0
-    except TimeoutExpired:
+        # res = run(["ping", "-c", "1", "-w", "1", hostname])
+        res = ping(hostname)
+        return True if res else False
+    # except TimeoutExpired:
+    except Exception:
         return False
 
 

@@ -1,3 +1,5 @@
+import { serverUrl } from "../path";
+
 export async function connection(data) {
   var formdata = new FormData();
   formdata.append("username", data.username);
@@ -13,10 +15,7 @@ export async function connection(data) {
   };
 
   try {
-    var response = await fetch(
-      "http://localhost:8000/api/token/",
-      requestOptions
-    );
+    var response = await fetch(`${serverUrl}/api/token/`, requestOptions);
     var content = await response.json();
     if (response.ok) {
       return content;

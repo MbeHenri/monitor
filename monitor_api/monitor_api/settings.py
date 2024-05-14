@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,8 +42,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "channels",
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     # django apps
     "servers.apps.ServersConfig",
     "django.contrib.admin",
@@ -92,10 +96,24 @@ CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    }
+} """
+DATABASES = {
+    "default": {
+        "ENGINE": os.environ.get("DB_ENGINE")
+        if os.environ.get("DB_ENGINE")
+        else "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME") if os.environ.get("DB_NAME") else "monitor",
+        "USER": os.environ.get("DB_USER") if os.environ.get("DB_USER") else "monitor",
+        "PASSWORD": os.environ.get("DB_PASSWORD")
+        if os.environ.get("DB_PASSWORD")
+        else "monitor",
+        "HOST": os.environ.get("DB_HOST") if os.environ.get("DB_HOST") else "127.0.0.1",
+        "PORT": os.environ.get("DB_PORT") if os.environ.get("DB_PORT") else "5432",
     }
 }
 
@@ -142,7 +160,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -156,13 +174,13 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Monitor API',
-    'DESCRIPTION': 'Documentation de l\'API de Monitor',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
+    "TITLE": "Monitor API",
+    "DESCRIPTION": "Documentation de l'API de Monitor",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
     # OTHER SETTINGS
 }
 

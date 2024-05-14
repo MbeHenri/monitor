@@ -1,6 +1,6 @@
 # !!!!! front 
 
-*.env
+.env*
 
 # dependencies
 /monitor-front/node_modules
