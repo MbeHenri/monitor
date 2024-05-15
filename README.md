@@ -37,6 +37,11 @@ docker compose up [-d]
 
 ```
 
+Un compte administrateur par défaut est crée (changeable):
+
+- `username` : admin
+- `password` : Admin123
+
 ### Suppression
 
 ```sh

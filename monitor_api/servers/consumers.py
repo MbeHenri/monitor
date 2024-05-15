@@ -2,7 +2,15 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from servers.models import Server
-from servers.cmds import accessible_server, cpu, disk, memory, services, uptime, swap
+from servers.cmds import (
+    accessible_server,
+    cpu,
+    disk,
+    memory,
+    services,
+    uptime,
+    swap,
+)
 
 from pssh.clients import SSHClient
 
@@ -79,52 +87,53 @@ class SessionServerConsumer(AsyncJsonWebsocketConsumer):
                 "cmd_type": cmd_type,
                 "data": None,
             }
-            try:
-                if cmd_type == "cpu":
-                    await self.handle_cpu(res)
+            out = {}
+            if cmd_type == "cpu":
+                out = await self.handle_cpu()
 
-                elif cmd_type == "disk":
-                    await self.handle_disk(res)
+            elif cmd_type == "disk":
+                out = await self.handle_disk()
 
-                elif cmd_type == "memory":
-                    await self.handle_memory(res)
+            elif cmd_type == "memory":
+                out = await self.handle_memory()
 
-                elif cmd_type == "swap":
-                    await self.handle_swap(res)
+            elif cmd_type == "swap":
+                out = await self.handle_swap()
 
-                elif cmd_type == "uptime":
-                    await self.handle_uptime(res)
+            elif cmd_type == "uptime":
+                out = await self.handle_uptime()
 
-                elif cmd_type == "services":
-                    await self.handle_services(res)
+            elif cmd_type == "services":
+                out = await self.handle_services()
 
-                await self.send_json(res)
-
-            except Exception as e:
+            if "error" in out.keys():
                 res["error"] = {
                     "type": "unknown",
                     "detail": "Un problème est survenu lors de l'exécution de la commande",
-                    "object": str(e),
+                    "describe": out["error"],
                 }
-                await self.send_json(res)
+            else:
+                res["data"] = out["data"]
 
-    async def handle_services(self, res):
-        res["data"] = services(self.client)
+            await self.send_json(res)
 
-    async def handle_uptime(self, res):
-        res["data"] = uptime(self.client)
+    async def handle_services(self):
+        return services(self.client)
 
-    async def handle_swap(self, res):
-        res["data"] = swap(self.client)
+    async def handle_uptime(self):
+        return uptime(self.client)
 
-    async def handle_memory(self, res):
-        res["data"] = memory(self.client)
+    async def handle_swap(self):
+        return swap(self.client)
 
-    async def handle_disk(self, res):
-        res["data"] = disk(self.client)
+    async def handle_memory(self):
+        return memory(self.client)
 
-    async def handle_cpu(self, res):
-        res["data"] = cpu(self.client)
+    async def handle_disk(self):
+        return disk(self.client)
+
+    async def handle_cpu(self):
+        return cpu(self.client)
 
     @database_sync_to_async
     def get_hostname(self):
