@@ -20,8 +20,8 @@ services:
   # Django App
   backend:
     image: monitor-backend
-    command: sh -c "python manage.py makemigrations && python manage.py migrate --noinput && python manage.py createsuperuser --noinput && python manage.py runserver 0.0.0.0:8000"
-    #command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    #command: sh -c "python manage.py makemigrations && python manage.py migrate --noinput && python manage.py createsuperuser --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8051:8000
 
@@ -45,16 +45,15 @@ services:
   # React App
   frontend:
     image: monitor-frontend
-
     ports:
-      - 8050:3000
+      - 8050:80
 
     environment:
-      REACT_APP_MONITOR_SERVERS_API_HOST: localhost
-      REACT_APP_MONITOR_SERVERS_API_PORT: 8051
+      MONITOR_API_HOST: 127.0.0.1
+      MONITOR_API_PORT: 8051
 
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:80" ]
       timeout: 5s
     #depends_on:
     #  backend:
